@@ -1,6 +1,6 @@
 XNU_ROOT = ./xnu
 DEPS = -I$(XNU_ROOT)/bsd -I$(XNU_ROOT)/osfmk -I$(XNU_ROOT)/libkern
-SHARED_FLAGS = -w -P -H -DKERNEL -D__arm64__ -E -fno-builtin
+SHARED_FLAGS = -w -P -H -DKERNEL -march=arm64 -E -fno-builtin
 
 # Extract preprocessed source code
 source:
@@ -8,4 +8,4 @@ source:
 
 # Extract preprocessed macros
 macros:
-	clang $(SHARED_FLAGS) $(DEPS) -dM $(XNU_ROOT)/bsd/kern/mach_loader.c -o mach_loader.macros 
+	clang $(SHARED_FLAGS) $(DEPS) -dM $(XNU_ROOT)/bsd/kern/mach_loader.c -o mach_loader.macros.c 
