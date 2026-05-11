@@ -1,6 +1,6 @@
 XNU_ROOT = ./xnu
 DEPS = -I$(XNU_ROOT)/bsd -I$(XNU_ROOT)/osfmk -I$(XNU_ROOT)/libkern
-SHARED_FLAGS = -w -P -H -DKERNEL -march=arm64 -E -fno-builtin
+SHARED_FLAGS = -w -P -H -DKERNEL --target=arm64-apple-darwin -E -fno-builtin
 
 # Extract preprocessed source code
 source:

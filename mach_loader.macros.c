@@ -55,7 +55,6 @@
 #define ANON_CHUNK_SIZE (128ULL * 1024 * 1024)
 #define ANON_MAX_SIZE ((1ULL << 32) - PAGE_SIZE)
 #define APPEND (UF_APPEND | SF_APPEND)
-#define APPLE_KEXT_ASSERTIONS 0
 #define APPSDBG_CODE(SubClass,code) KDBG_CODE(DBG_APPS, SubClass, code)
 #define AQ_BUFSZ MAXAUDITDATA
 #define AQ_HIWATER 100
@@ -75,6 +74,35 @@
 #define ARGS9_EXTENT 9
 #define ARG_MAX (1024 * 1024)
 #define ARIADNEDBG_CODE(SubClass,code) KDBG_CODE(DBG_ARIADNE, SubClass, code)
+#define ARM_CPMU_STATE64 18
+#define ARM_DEBUG_STATE 4
+#define ARM_DEBUG_STATE32 14
+#define ARM_DEBUG_STATE32_COUNT ((mach_msg_type_number_t) (sizeof (arm_debug_state32_t)/sizeof(uint32_t)))
+#define ARM_DEBUG_STATE64 15
+#define ARM_DEBUG_STATE64_COUNT ((mach_msg_type_number_t) (sizeof (arm_debug_state64_t)/sizeof(uint32_t)))
+#define ARM_DEBUG_STATE_COUNT ((mach_msg_type_number_t) (sizeof (arm_debug_state_t)/sizeof(uint32_t)))
+#define ARM_EXCEPTION_STATE 3
+#define ARM_EXCEPTION_STATE64 7
+#define ARM_EXCEPTION_STATE64_COUNT ((mach_msg_type_number_t) (sizeof (arm_exception_state64_t)/sizeof(uint32_t)))
+#define ARM_EXCEPTION_STATE_COUNT ((mach_msg_type_number_t) (sizeof (arm_exception_state_t)/sizeof(uint32_t)))
+#define ARM_NEON_STATE 16
+#define ARM_NEON_STATE64 17
+#define ARM_NEON_STATE64_COUNT ((mach_msg_type_number_t) (sizeof (arm_neon_state64_t)/sizeof(uint32_t)))
+#define ARM_NEON_STATE_COUNT ((mach_msg_type_number_t) (sizeof (arm_neon_state_t)/sizeof(uint32_t)))
+#define ARM_PAGEIN_STATE 27
+#define ARM_PAGEIN_STATE_COUNT ((mach_msg_type_number_t) (sizeof (arm_pagein_state_t)/sizeof(uint32_t)))
+#define ARM_STATE_FLAVOR_IS_OTHER_VALID(_flavor_) 0
+#define ARM_THREAD_STATE 1
+#define ARM_THREAD_STATE32 9
+#define ARM_THREAD_STATE32_COUNT ((mach_msg_type_number_t) (sizeof (arm_thread_state32_t)/sizeof(uint32_t)))
+#define ARM_THREAD_STATE64 6
+#define ARM_THREAD_STATE64_COUNT ((mach_msg_type_number_t) (sizeof (arm_thread_state64_t)/sizeof(uint32_t)))
+#define ARM_THREAD_STATE_COUNT ((mach_msg_type_number_t) (sizeof (arm_thread_state_t)/sizeof(uint32_t)))
+#define ARM_THREAD_STATE_MAX (1296)
+#define ARM_UNIFIED_THREAD_STATE ARM_THREAD_STATE
+#define ARM_UNIFIED_THREAD_STATE_COUNT ((mach_msg_type_number_t) (sizeof (arm_unified_thread_state_t)/sizeof(uint32_t)))
+#define ARM_VFP_STATE 2
+#define ARM_VFP_STATE_COUNT ((mach_msg_type_number_t) (sizeof (arm_vfp_state_t)/sizeof(uint32_t)))
 #define AST_KEVENT_REDRIVE_THREADREQ 0x0002
 #define AST_KEVENT_RETURN_TO_KERNEL 0x0001
 #define ATM_CODE(SubClass,code) KDBG_CODE(DBG_ATM, (SubClass), (code))
@@ -1078,7 +1106,7 @@
 #define DEV_BSIZE 512
 #define DFLCSIZ (0)
 #define DFLDSIZ (RLIM_INFINITY)
-#define DFLSSIZ (8*1024*1024)
+#define DFLSSIZ (8*1024*1024 - 16*1024)
 #define DICE_KIND_ABS_JUMP_TABLE32 0x0005
 #define DICE_KIND_DATA 0x0001
 #define DICE_KIND_JUMP_TABLE16 0x0003
@@ -1107,6 +1135,7 @@
 #define DST_NONE 0
 #define DST_USA 1
 #define DST_WET 3
+#define DTRACE_ALLOC_STACK(n) "sub sp, sp, #" #n "\n\t"
 #define DTRACE_BOOST(name) DTRACE_PROBE(__boost_, name);
 #define DTRACE_BOOST1(name,type1,arg1) DTRACE_PROBE1(__boost_, name, arg1);
 #define DTRACE_BOOST2(name,type1,arg1,type2,arg2) DTRACE_PROBE2(__boost_, name, arg1, arg2);
@@ -1115,16 +1144,19 @@
 #define DTRACE_BOOST5(name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) DTRACE_PROBE5(__boost_, name, arg1, arg2, arg3, arg4, arg5);
 #define DTRACE_BOOST6(name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) DTRACE_PROBE6(__boost_, name, arg1, arg2, arg3, arg4, arg5, arg6);
 #define DTRACE_CALL(p,n) DTRACE_LABEL(p,n) DTRACE_NOPS
-#define DTRACE_CALL0ARGS(provider,name) asm volatile ( DTRACE_CALL(provider, name) : : );
-#define DTRACE_CALL1ARG(provider,name) asm volatile ("movq\t0x0(%0),%%rdi" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "rdi" );
-#define DTRACE_CALL2ARGS(provider,name) asm volatile ("movq\t0x0(%0),%%rdi" "\n\t" "movq\t0x8(%0),%%rsi" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "rdi", "rsi" );
-#define DTRACE_CALL3ARGS(provider,name) asm volatile ("movq\t0x0(%0),%%rdi" "\n\t" "movq\t0x8(%0),%%rsi" "\n\t" "movq\t0x10(%0),%%rdx" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "rdi", "rsi", "rdx" );
-#define DTRACE_CALL4ARGS(provider,name) asm volatile ("movq\t0x0(%0),%%rdi" "\n\t" "movq\t0x8(%0),%%rsi" "\n\t" "movq\t0x10(%0),%%rdx" "\n\t" "movq\t0x18(%0),%%rcx" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "rdi", "rsi", "rdx", "rcx" );
-#define DTRACE_CALL5ARGS(provider,name) asm volatile ("movq\t0x0(%0),%%rdi" "\n\t" "movq\t0x8(%0),%%rsi" "\n\t" "movq\t0x10(%0),%%rdx" "\n\t" "movq\t0x18(%0),%%rcx" "\n\t" "movq\t0x20(%0),%%r8" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "rdi", "rsi", "rdx", "rcx", "r8" );
-#define DTRACE_CALL6ARGS(provider,name) asm volatile ("movq\t0x0(%0),%%rdi" "\n\t" "movq\t0x8(%0),%%rsi" "\n\t" "movq\t0x10(%0),%%rdx" "\n\t" "movq\t0x18(%0),%%rcx" "\n\t" "movq\t0x20(%0),%%r8" "\n\t" "movq\t0x28(%0),%%r9" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "rdi", "rsi", "rdx", "rcx", "r8", "r9" );
-#define DTRACE_CALL7ARGS(provider,name) asm volatile ("subq\t$0x8,%%rsp" "\n\t" "movq\t0x0(%0),%%rdi" "\n\t" "movq\t0x8(%0),%%rsi" "\n\t" "movq\t0x10(%0),%%rdx" "\n\t" "movq\t0x18(%0),%%rcx" "\n\t" "movq\t0x20(%0),%%r8" "\n\t" "movq\t0x28(%0),%%r9" "\n\t" "movq\t0x30(%0),%%rax" "\n\t" "movq\t%%rax,0x0(%%rsp)" "\n\t" DTRACE_CALL(provider, name) "addq\t$0x8,%%rsp" "\n\t" : : "r" (__dtrace_args) : "memory", "rdi", "rsi", "rdx", "rcx", "r8", "r9", "rax" );
-#define DTRACE_CALL8ARGS(provider,name) asm volatile ("subq\t$0x10,%%rsp" "\n\t" "movq\t0x0(%0),%%rdi" "\n\t" "movq\t0x8(%0),%%rsi" "\n\t" "movq\t0x10(%0),%%rdx" "\n\t" "movq\t0x18(%0),%%rcx" "\n\t" "movq\t0x20(%0),%%r8" "\n\t" "movq\t0x28(%0),%%r9" "\n\t" "movq\t0x30(%0),%%rax" "\n\t" "movq\t%%rax,0x0(%%rsp)" "\n\t" "movq\t0x38(%0),%%rax" "\n\t" "movq\t%%rax,0x8(%%rsp)" "\n\t" DTRACE_CALL(provider, name) "addq\t$0x10,%%rsp" "\n\t" : : "r" (__dtrace_args) : "memory", "rdi", "rsi", "rdx", "rcx", "r8", "r9", "rax" );
-#define DTRACE_CALL_INSN(p,n) "call _dtracetest" DTRACE_STRINGIFY(_##p##_##n) "\n\t"
+#define DTRACE_CALL0ARGS(provider,name) asm volatile ( DTRACE_CALL(provider, name) "# eat trailing nl+tab from DTRACE_CALL" : : );
+#define DTRACE_CALL10ARGS(provider,name) asm volatile ( DTRACE_ALLOC_STACK(16) "ldp x0, x1, [%0, #64]" "\n\t" "stp x0, x1, [sp]" "\n\t" "ldp x6, x7, [%0, #48]" "\n\t" "ldp x4, x5, [%0, #32]" "\n\t" "ldp x2, x3, [%0, #16]" "\n\t" "ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) DTRACE_DEALLOC_STACK(16) : : "r" (__dtrace_args) : "memory", "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7" );
+#define DTRACE_CALL1ARG(provider,name) asm volatile ("ldr x0, [%0]" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "x0" );
+#define DTRACE_CALL2ARGS(provider,name) asm volatile ("ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "x0", "x1" );
+#define DTRACE_CALL3ARGS(provider,name) asm volatile ("ldr x2, [%0, #16]" "\n\t" "ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "x0", "x1", "x2" );
+#define DTRACE_CALL4ARGS(provider,name) asm volatile ("ldp x2, x3, [%0, #16]" "\n\t" "ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "x0", "x1", "x2", "x3" );
+#define DTRACE_CALL5ARGS(provider,name) asm volatile ("ldr x4, [%0, #32]" "\n\t" "ldp x2, x3, [%0, #16]" "\n\t" "ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "x0", "x1", "x2", "x3", "x4" );
+#define DTRACE_CALL6ARGS(provider,name) asm volatile ("ldp x4, x5, [%0, #32]" "\n\t" "ldp x2, x3, [%0, #16]" "\n\t" "ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "x0", "x1", "x2", "x3", "x4", "x5" );
+#define DTRACE_CALL7ARGS(provider,name) asm volatile ("ldr x6, [%0, #48]" "\n\t" "ldp x4, x5, [%0, #32]" "\n\t" "ldp x2, x3, [%0, #16]" "\n\t" "ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "x0", "x1", "x2", "x3", "x4", "x5", "x6" );
+#define DTRACE_CALL8ARGS(provider,name) asm volatile ("ldp x6, x7, [%0, #48]" "\n\t" "ldp x4, x5, [%0, #32]" "\n\t" "ldp x2, x3, [%0, #16]" "\n\t" "ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) : : "r" (__dtrace_args) : "memory", "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7" );
+#define DTRACE_CALL9ARGS(provider,name) asm volatile ( DTRACE_ALLOC_STACK(16) "ldr x0, [%0, #64]" "\n\t" "str x0, [sp]" "\n\t" "ldp x6, x7, [%0, #48]" "\n\t" "ldp x4, x5, [%0, #32]" "\n\t" "ldp x2, x3, [%0, #16]" "\n\t" "ldp x0, x1, [%0]" "\n\t" DTRACE_CALL(provider, name) DTRACE_DEALLOC_STACK(16) : : "r" (__dtrace_args) : "memory", "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7" );
+#define DTRACE_CALL_INSN(p,n) "bl _dtracetest" DTRACE_STRINGIFY(_##p##_##n) "\n\t"
+#define DTRACE_DEALLOC_STACK(n) "add sp, sp, #" #n "\n\t"
 #define DTRACE_FSINFO(name,type,vp) DTRACE_PROBE1(__fsinfo_, name, vp)
 #define DTRACE_FSINFO_IO(name,type1,vp,type2,size) DTRACE_PROBE2(__fsinfo_, name, vp, size)
 #define DTRACE_INT5(name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) DTRACE_PROBE5(__sdt_, name, arg1, arg2, arg3, arg4, arg5);
@@ -1141,7 +1173,7 @@
 #define DTRACE_IP5(name,typ1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) DTRACE_PROBE5(__ip_, name, arg1, arg2, arg3, arg4, arg5)
 #define DTRACE_IP6(name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) DTRACE_PROBE6(__ip_, name, arg1, arg2, arg3, arg4, arg5, arg6)
 #define DTRACE_IP7(name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6,type7,arg7) DTRACE_PROBE7(__ip_, name, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-#define DTRACE_LABEL(p,n) ".pushsection __DATA, __sdt_cstring, cstring_literals\n\t" "1: .ascii \"" DTRACE_STRINGIFY(p##___) "\\0\"\n\t" "2: .ascii \"" DTRACE_STRINGIFY(n) "\\0\"\n\t" ".popsection" "\n\t" ".pushsection __DATA, __sdt, regular, live_support\n\t" ".p2align	3\n\t" "l3_%=:\n\t" ".quad 4f" "\n\t" ".quad 1b" "\n\t" ".quad 2b" "\n\t" ".popsection" "\n\t" "4:"
+#define DTRACE_LABEL(p,n) ".pushsection __DATA, __sdt_cstring, cstring_literals\n\t" "1: .ascii \"" DTRACE_STRINGIFY(p##___) "\\0\"\n\t" "2: .ascii \"" DTRACE_STRINGIFY(n) "\\0\"\n\t" ".popsection" "\n\t" ".pushsection __DATA, __sdt, regular, live_support\n\t" ".p2align 3\n\t" "l3_%=:\n\t" ".quad 4f""\n\t" ".quad 1b""\n\t" ".quad 2b""\n\t" ".popsection" "\n\t" "4:"
 #define DTRACE_MEMORYSTATUS2(name,type1,arg1,type2,arg2) DTRACE_PROBE2(__sdt_, name, arg1, arg2);
 #define DTRACE_MEMORYSTATUS3(name,type1,arg1,type2,arg2,type3,arg3) DTRACE_PROBE3(__sdt_, name, arg1, arg2, arg3);
 #define DTRACE_MEMORYSTATUS4(name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) DTRACE_PROBE4(__sdt_, name, arg1, arg2, arg3, arg4);
@@ -1154,7 +1186,7 @@
 #define DTRACE_MPTCP5(name,typ1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) DTRACE_PROBE5(__mptcp_, name, arg1, arg2, arg3, arg4, arg5)
 #define DTRACE_MPTCP6(name,typ1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) DTRACE_PROBE6(__mptcp_, name, arg1, arg2, arg3, arg4, arg5, arg6)
 #define DTRACE_MPTCP7(name,typ1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6,type7,arg7) DTRACE_PROBE7(__mptcp_, name, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-#define DTRACE_NOPS "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
+#define DTRACE_NOPS "nop" "\n\t"
 #define DTRACE_PHYSLAT3(name,type1,arg1,type2,arg2,type3,arg3) DTRACE_PROBE3(__sdt_, name, arg1, arg2, arg3);
 #define DTRACE_PHYSLAT4(name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) DTRACE_PROBE4(__sdt_, name, arg1, arg2, arg3, arg4);
 #define DTRACE_PHYSLAT5(name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5) DTRACE_PROBE5(__sdt_, name, arg1, arg2, arg3, arg4, arg5);
@@ -1247,29 +1279,6 @@
 #define EFBIG 27
 #define EFI_AURR_EXTENDED_LOG_SIZE (EXTENDED_DEBUG_BUF_SIZE - sizeof(struct efi_aurr_panic_header) - EFI_AURR_PANIC_STRING_MAX_LEN)
 #define EFI_AURR_PANIC_STRING_MAX_LEN 112
-#define EFL_AC 0x00040000
-#define EFL_AF 0x00000010
-#define EFL_CF 0x00000001
-#define EFL_CLR 0xfff88028
-#define EFL_DF 0x00000400
-#define EFL_ID 0x00200000
-#define EFL_IF 0x00000200
-#define EFL_IOPL 0x00003000
-#define EFL_IOPL_KERNEL 0x00000000
-#define EFL_IOPL_USER 0x00003000
-#define EFL_NT 0x00004000
-#define EFL_OF 0x00000800
-#define EFL_PF 0x00000004
-#define EFL_RF 0x00010000
-#define EFL_SET 0x00000002
-#define EFL_SF 0x00000080
-#define EFL_TF 0x00000100
-#define EFL_USER_CLEAR (EFL_IOPL|EFL_NT|EFL_RF)
-#define EFL_USER_SET (EFL_IF)
-#define EFL_VIF 0x00080000
-#define EFL_VIP 0x00100000
-#define EFL_VM 0x00020000
-#define EFL_ZF 0x00000040
 #define EFTYPE 79
 #define EF_IS_PURGEABLE 0x00000008
 #define EF_IS_SPARSE 0x00000010
@@ -1416,6 +1425,20 @@
 #define EXCEPTION_STATE 2
 #define EXCEPTION_STATE_IDENTITY 3
 #define EXC_ARITHMETIC 3
+#define EXC_ARM_BREAKPOINT 1
+#define EXC_ARM_DA_ALIGN 0x101
+#define EXC_ARM_DA_DEBUG 0x102
+#define EXC_ARM_FP_DZ 2
+#define EXC_ARM_FP_ID 6
+#define EXC_ARM_FP_IO 1
+#define EXC_ARM_FP_IX 5
+#define EXC_ARM_FP_OF 3
+#define EXC_ARM_FP_UF 4
+#define EXC_ARM_FP_UNDEFINED 0
+#define EXC_ARM_PAC_FAIL 0x105
+#define EXC_ARM_SP_ALIGN 0x103
+#define EXC_ARM_SWP 0x104
+#define EXC_ARM_UNDEFINED 1
 #define EXC_BAD_ACCESS 1
 #define EXC_BAD_INSTRUCTION 2
 #define EXC_BREAKPOINT 6
@@ -1424,36 +1447,6 @@
 #define EXC_CRASH 10
 #define EXC_EMULATION 4
 #define EXC_GUARD 12
-#define EXC_I386_ALIGNFLT 17
-#define EXC_I386_BOUND 7
-#define EXC_I386_BOUNDFLT 5
-#define EXC_I386_BPT 2
-#define EXC_I386_BPTFLT 3
-#define EXC_I386_DBLFLT 8
-#define EXC_I386_DIV 1
-#define EXC_I386_DIVERR 0
-#define EXC_I386_EMERR 6
-#define EXC_I386_ENDPERR 33
-#define EXC_I386_ENOEXTFLT 32
-#define EXC_I386_EXTERR 5
-#define EXC_I386_EXTERRFLT 16
-#define EXC_I386_EXTOVR 4
-#define EXC_I386_EXTOVRFLT 9
-#define EXC_I386_GPFLT 13
-#define EXC_I386_INTO 2
-#define EXC_I386_INTOFLT 4
-#define EXC_I386_INVOP 1
-#define EXC_I386_INVOPFLT 6
-#define EXC_I386_INVTSSFLT 10
-#define EXC_I386_NMIFLT 2
-#define EXC_I386_NOEXT 3
-#define EXC_I386_NOEXTFLT 7
-#define EXC_I386_PGFLT 14
-#define EXC_I386_SEGNPFLT 11
-#define EXC_I386_SGL 1
-#define EXC_I386_SGLSTP 1
-#define EXC_I386_SSEEXTERR 8
-#define EXC_I386_STKFLT 12
 #define EXC_MACF_MAX 0x2FFFF
 #define EXC_MACF_MIN 0x20000
 #define EXC_MACH_SYSCALL 8
@@ -1562,28 +1555,6 @@
 #define FOLLOW 0x00000040
 #define FOOTPRINT_INTERVAL_RESET 0x1
 #define FORCECLOSE 0x0002
-#define FPC_DE 0x0002
-#define FPC_DM FPC_DE
-#define FPC_IC 0x1000
-#define FPC_IC_AFF 0x1000
-#define FPC_IC_PROJ 0x0000
-#define FPC_IE 0x0001
-#define FPC_IM FPC_IE
-#define FPC_OE 0x0008
-#define FPC_OM FPC_OE
-#define FPC_PC 0x0300
-#define FPC_PC_24 0x0000
-#define FPC_PC_53 0x0200
-#define FPC_PC_64 0x0300
-#define FPC_PE 0x0020
-#define FPC_RC 0x0c00
-#define FPC_RC_CHOP 0x0c00
-#define FPC_RC_RD 0x0400
-#define FPC_RC_RN 0x0000
-#define FPC_RC_RU 0x0800
-#define FPC_UE 0x0010
-#define FPC_ZE 0x0004
-#define FPC_ZM FPC_ZE
 #define FPE_FLTDIV 1
 #define FPE_FLTINV 5
 #define FPE_FLTOVF 2
@@ -1593,34 +1564,6 @@
 #define FPE_INTDIV 7
 #define FPE_INTOVF 8
 #define FPE_NOOP 0
-#define FPS_BUSY 0x8000
-#define FPS_C0 0x0100
-#define FPS_C1 0x0200
-#define FPS_C2 0x0400
-#define FPS_C3 0x4000
-#define FPS_DE 0x0002
-#define FPS_ES 0x0080
-#define FPS_IE 0x0001
-#define FPS_OE 0x0008
-#define FPS_PE 0x0020
-#define FPS_SF 0x0040
-#define FPS_TOS 0x3800
-#define FPS_TOS_SHIFT 11
-#define FPS_UE 0x0010
-#define FPS_ZE 0x0004
-#define FP_287 2
-#define FP_387 3
-#define FP_CHOP 3
-#define FP_FXSR 4
-#define FP_NO 0
-#define FP_PREC_24B 0
-#define FP_PREC_53B 2
-#define FP_PREC_64B 3
-#define FP_RND_DOWN 1
-#define FP_RND_NEAR 0
-#define FP_RND_UP 2
-#define FP_SOFT 1
-#define FP_STATE_BYTES 512
 #define FREAD 0x00000001
 #define FREE(addr,type) _FREE((void *)addr, type)
 #define FREEREMAINDER 0x00000008
@@ -1726,6 +1669,7 @@
 #define GUARD_REASON_VNODE 1
 #define GUARD_TYPE_MACH_PORT 0x1
 #define GUARD_TYPE_VIRT_MEMORY 0x5
+#define GiB(x) ((0ULL + (x)) << 30)
 #define HAVE_VT_LOCKERFS 1
 #define HOST_AMFID_PORT (11 + HOST_MAX_SPECIAL_KERNEL_PORT)
 #define HOST_ATM_NOTIFICATION_PORT (14 + HOST_MAX_SPECIAL_KERNEL_PORT)
@@ -1812,13 +1756,6 @@
 #define HTONS(x) (x) = htons((__uint16_t)x)
 #define HV_GUEST_ENTER 0x000
 #define HV_GUEST_ERROR 0x001
-#define I386_EXCEPTION_STATE_COUNT i386_EXCEPTION_STATE_COUNT
-#define I386_LPGBYTES 2*1024*1024
-#define I386_LPGMASK (I386_LPGBYTES-1)
-#define I386_LPGSHIFT 21
-#define I386_PGBYTES 4096
-#define I386_PGSHIFT 12
-#define I386_THREAD_STATE_MAX (614)
 #define IDENTITYSVC_ENTITLEMENT "com.apple.private.identitysvc"
 #define IFTOVT(mode) (iftovt_tab[((mode) & S_IFMT) >> 12])
 #define ILL_BADSTK 8
@@ -1904,7 +1841,7 @@
 #define IMP_USYNCH_QOS_OVERRIDE 0x1A
 #define IMP_USYNCH_REMOVE_OVERRIDE 0x1
 #define IMP_WATCHPORT 0x13
-#define INCR_PENDING_IO(a,b) OSAddAtomic64((int64_t)(a), (int64_t *)&(b));
+#define INCR_PENDING_IO(a,b) OSAddAtomic((int32_t)(a), (int32_t *)&(b));
 #define INDEX_NULL 0
 #define INDIRECT_SYMBOL_ABS 0x40000000
 #define INDIRECT_SYMBOL_LOCAL 0x80000000
@@ -2302,8 +2239,6 @@
 #define KERN_ALREADY_IN_SET 11
 #define KERN_ALREADY_WAITING 30
 #define KERN_CODESIGN_ERROR 50
-#define KERN_CODE_SELECTOR 0x0008
-#define KERN_DATA_SELECTOR 0x0010
 #define KERN_DEFAULT_SET 31
 #define KERN_DENIED 53
 #define KERN_EXCEPTION_PROTECTED 32
@@ -2578,8 +2513,8 @@
 #define M16KCLBYTES (1 << M16KCLSHIFT)
 #define M16KCLSHIFT 14
 #define MACHDBG_CODE(SubClass,code) KDBG_CODE(DBG_MACH, SubClass, code)
-#define MACHINE_THREAD_STATE x86_THREAD_STATE
-#define MACHINE_THREAD_STATE_COUNT x86_THREAD_STATE_COUNT
+#define MACHINE_THREAD_STATE ARM_THREAD_STATE
+#define MACHINE_THREAD_STATE_COUNT ARM_UNIFIED_THREAD_STATE_COUNT
 #define MACHO_PRINTF(args) do { if (macho_printf) { printf args; } } while (0)
 #define MACH_ACTIVITY_ID_COUNT_MAX 16
 #define MACH_AMP_DEBUG 0xd
@@ -2920,8 +2855,14 @@
 #define MACH_TURNSTILE_KERNEL_CHANGE 0x40
 #define MACH_TURNSTILE_USER_CHANGE 0x39
 #define MACH_URGENCY 0x15
-#define MACH_VM_MAX_ADDRESS ((mach_vm_offset_t) VM_MAX_PAGE_ADDRESS)
-#define MACH_VM_MIN_ADDRESS ((mach_vm_offset_t) 0)
+#define MACH_VM_MAX_ADDRESS ((mach_vm_offset_t) MACH_VM_MAX_ADDRESS_RAW)
+#define MACH_VM_MAX_ADDRESS_RAW 0x0000000FC0000000ULL
+#define MACH_VM_MAX_GPU_CARVEOUT_ADDRESS ((mach_vm_offset_t) MACH_VM_MAX_GPU_CARVEOUT_ADDRESS_RAW)
+#define MACH_VM_MAX_GPU_CARVEOUT_ADDRESS_RAW 0x0000007000000000ULL
+#define MACH_VM_MIN_ADDRESS ((mach_vm_offset_t) MACH_VM_MIN_ADDRESS_RAW)
+#define MACH_VM_MIN_ADDRESS_RAW 0x0ULL
+#define MACH_VM_MIN_GPU_CARVEOUT_ADDRESS ((mach_vm_offset_t) MACH_VM_MIN_GPU_CARVEOUT_ADDRESS_RAW)
+#define MACH_VM_MIN_GPU_CARVEOUT_ADDRESS_RAW 0x0000001000000000ULL
 #define MACH_VOUCHER_ATTR_AUTO_REDEEM ((mach_voucher_attr_recipe_command_t)4)
 #define MACH_VOUCHER_ATTR_BITS_STORE MACH_VOUCHER_ATTR_USER_DATA_STORE
 #define MACH_VOUCHER_ATTR_CONTROL_FLAGS_NONE ((mach_voucher_attr_control_flags_t)0)
@@ -3128,7 +3069,7 @@
 #define MAXLOGNAME 255
 #define MAXPAGERFILES 16
 #define MAXPATHLEN PATH_MAX
-#define MAXPHYS (128 * 1024)
+#define MAXPHYS (64 * 1024)
 #define MAXPHYSIO MAXPHYS
 #define MAXPHYSIO_WIRED (16 * 1024 * 1024)
 #define MAXPRI 127
@@ -3454,7 +3395,7 @@
 #define NFS_MAX_FH_SIZE NFSV4_MAX_FH_SIZE
 #define NGROUPS NGROUPS_MAX
 #define NGROUPS_MAX 16
-#define NMBCLUSTERS ((1024 * 1024) / MCLBYTES)
+#define NMBCLUSTERS CONFIG_NMBCLUSTERS
 #define NOCRED ((kauth_cred_t )0)
 #define NODEV (dev_t)(-1)
 #define NOFILE 256
@@ -3723,16 +3664,16 @@
 #define PAGER_ERROR 2
 #define PAGER_FILE_NULL (pager_file_t) 0
 #define PAGER_SUCCESS 0
-#define PAGE_MASK (PAGE_SIZE - 1)
+#define PAGE_MASK (PAGE_SIZE-1)
 #define PAGE_MASK_64 (unsigned long long)PAGE_MASK
-#define PAGE_MAX_MASK PAGE_MASK
-#define PAGE_MAX_SHIFT PAGE_SHIFT
-#define PAGE_MAX_SIZE PAGE_SIZE
-#define PAGE_MIN_MASK PAGE_MASK
-#define PAGE_MIN_SHIFT PAGE_SHIFT
-#define PAGE_MIN_SIZE PAGE_SIZE
-#define PAGE_SHIFT I386_PGSHIFT
-#define PAGE_SIZE I386_PGBYTES
+#define PAGE_MAX_MASK (PAGE_MAX_SIZE-1)
+#define PAGE_MAX_SHIFT 14
+#define PAGE_MAX_SIZE (1 << PAGE_MAX_SHIFT)
+#define PAGE_MIN_MASK (PAGE_MIN_SIZE-1)
+#define PAGE_MIN_SHIFT 12
+#define PAGE_MIN_SIZE (1 << PAGE_MIN_SHIFT)
+#define PAGE_SHIFT PAGE_SHIFT_CONST
+#define PAGE_SIZE (1 << PAGE_SHIFT)
 #define PAGE_SIZE_64 (unsigned long long)PAGE_SIZE
 #define PATH_MAX 1024
 #define PCATCH 0x100
@@ -3945,6 +3886,10 @@
 #define PROCESSOR_BASIC_INFO_COUNT ((mach_msg_type_number_t) (sizeof(processor_basic_info_data_t)/sizeof(natural_t)))
 #define PROCESSOR_CPU_LOAD_INFO 2
 #define PROCESSOR_CPU_LOAD_INFO_COUNT ((mach_msg_type_number_t) (sizeof(processor_cpu_load_info_data_t)/sizeof(natural_t)))
+#define PROCESSOR_CPU_STAT 0x10000003
+#define PROCESSOR_CPU_STAT64 0x10000004
+#define PROCESSOR_CPU_STAT64_COUNT ((mach_msg_type_number_t) (sizeof(processor_cpu_stat64_data_t) / sizeof(integer_t)))
+#define PROCESSOR_CPU_STAT_COUNT ((mach_msg_type_number_t) (sizeof(processor_cpu_stat_data_t) / sizeof(natural_t)))
 #define PROCESSOR_INFO_MAX (1024)
 #define PROCESSOR_NULL ((processor_t) NULL)
 #define PROCESSOR_PM_REGS_INFO 0x10000001
@@ -4561,7 +4506,6 @@
 #define SUB_MACH_TIMESPEC(t1,t2) do { if (((t1)->tv_nsec -= (t2)->tv_nsec) < 0) { (t1)->tv_nsec += (long) NSEC_PER_SEC; (t1)->tv_sec -= 1; } (t1)->tv_sec -= (t2)->tv_sec; } while (0)
 #define SUID_CRED_NULL ((suid_cred_t) NULL)
 #define SUPERPAGE_NONE 0
-#define SUPERPAGE_SIZE_2MB 2
 #define SUPERPAGE_SIZE_ANY 1
 #define SV_INTERRUPT SA_RESTART
 #define SV_NOCLDSTOP SA_NOCLDSTOP
@@ -4569,6 +4513,7 @@
 #define SV_ONSTACK SA_ONSTACK
 #define SV_RESETHAND SA_RESETHAND
 #define SV_SIGINFO SA_SIGINFO
+#define SWI_SYSCALL 0x80
 #define SYSCTL_COMPAT_INT(parent,nbr,name,access,ptr,val,descr) SYSCTL_OID(parent, nbr, name, CTLTYPE_INT|access, ptr, val, sysctl_handle_int, "I", descr)
 #define SYSCTL_COMPAT_UINT(parent,nbr,name,access,ptr,val,descr) SYSCTL_OID(parent, nbr, name, CTLTYPE_INT|access, ptr, val, sysctl_handle_int, "IU", descr)
 #define SYSCTL_DECL(name) extern struct sysctl_oid_list sysctl_##name##_children
@@ -4706,13 +4651,13 @@
 #define TARGET_CPU_68K 0
 #define TARGET_CPU_ALPHA 0
 #define TARGET_CPU_ARM 0
-#define TARGET_CPU_ARM64 0
+#define TARGET_CPU_ARM64 1
 #define TARGET_CPU_MIPS 0
 #define TARGET_CPU_PPC 0
 #define TARGET_CPU_PPC64 0
 #define TARGET_CPU_SPARC 0
 #define TARGET_CPU_X86 0
-#define TARGET_CPU_X86_64 1
+#define TARGET_CPU_X86_64 0
 #define TARGET_IPHONE_SIMULATOR TARGET_OS_SIMULATOR
 #define TARGET_OS_DRIVERKIT 0
 #define TARGET_OS_EMBEDDED 0
@@ -4901,6 +4846,8 @@
 #define TC_LOOKUP_HASH_TYPE_SHIFT 16
 #define TC_LOOKUP_RESULT_MASK 0xffL
 #define TC_LOOKUP_RESULT_SHIFT 0
+#define TEST_PAGE_SIZE_16K ((PAGE_SHIFT_CONST == 14))
+#define TEST_PAGE_SIZE_4K ((PAGE_SHIFT_CONST == 12))
 #define TF_64B_DATA 0x00000002
 #define TF_LP64 0x00000001
 #define TF_NONE 0
@@ -4958,8 +4905,8 @@
 #define THREAD_STATE_FLAVOR_LIST_10_15 131
 #define THREAD_STATE_FLAVOR_LIST_10_9 129
 #define THREAD_STATE_FLAVOR_LIST_NEW 128
-#define THREAD_STATE_MAX I386_THREAD_STATE_MAX
-#define THREAD_STATE_NONE 13
+#define THREAD_STATE_MAX ARM_THREAD_STATE_MAX
+#define THREAD_STATE_NONE 5
 #define THREAD_THROUGHPUT_QOS_POLICY 8
 #define THREAD_THROUGHPUT_QOS_POLICY_COUNT ((mach_msg_type_number_t) (sizeof (thread_throughput_qos_policy_data_t) / sizeof (integer_t)))
 #define THREAD_TIMED_OUT 1
@@ -5140,6 +5087,7 @@
 #define TURNSTILE_REMOVED_FROM_TURNSTILE_HEAP 0x5
 #define TURNSTILE_UPDATE_STOPPED_BY_LIMIT 0xa
 #define TWF_NONE 0
+#define TiB(x) ((0ULL + (x)) << 40)
 #define UBC_FLAGS_NONE 0x0000
 #define UBC_FOR_PAGEOUT 0x0002
 #define UBC_HOLDOBJECT 0x0001
@@ -5277,16 +5225,14 @@
 #define USEC_PER_SEC 1000000ull
 #define USERMODE(x) (((x) & 3) == 3)
 #define USER_ADDR_NULL ((user_addr_t) 0)
-#define USER_CODE_SELECTOR 0x0017
-#define USER_DATA_SELECTOR 0x001f
 #define USER_FSIGNATURES_CDHASH_LEN 20
 #define USHRT_MAX 65535
 #define USING_MIG_STRNCPY_ZEROFILL 
-#define USRSTACK VM_USRSTACK32
-#define USRSTACK64 VM_USRSTACK64
+#define USRSTACK (0x27E00000)
+#define USRSTACK64 (0x000000016FE00000ULL)
 #define UUID_DEFINE(name,u0,u1,u2,u3,u4,u5,u6,u7,u8,u9,u10,u11,u12,u13,u14,u15) static const uuid_t name __attribute__ ((unused)) = {u0,u1,u2,u3,u4,u5,u6,u7,u8,u9,u10,u11,u12,u13,u14,u15}
 #define VAGE 0x001000
-#define VALID_THREAD_STATE_FLAVOR(x) ((x == x86_THREAD_STATE32) || (x == x86_FLOAT_STATE32) || (x == x86_EXCEPTION_STATE32) || (x == x86_DEBUG_STATE32) || (x == x86_THREAD_STATE64) || (x == x86_THREAD_FULL_STATE64) || (x == x86_FLOAT_STATE64) || (x == x86_EXCEPTION_STATE64) || (x == x86_DEBUG_STATE64) || (x == x86_THREAD_STATE) || (x == x86_FLOAT_STATE) || (x == x86_EXCEPTION_STATE) || (x == x86_DEBUG_STATE) || (x == x86_AVX_STATE32) || (x == x86_AVX_STATE64) || (x == x86_AVX_STATE) || (x == x86_AVX512_STATE32) || (x == x86_AVX512_STATE64) || (x == x86_AVX512_STATE) || (x == x86_PAGEIN_STATE) || (x == x86_INSTRUCTION_STATE) || (x == x86_LAST_BRANCH_STATE) || (x == THREAD_STATE_NONE))
+#define VALID_THREAD_STATE_FLAVOR(x) ((x == ARM_THREAD_STATE) || (x == ARM_VFP_STATE) || (x == ARM_EXCEPTION_STATE) || (x == ARM_DEBUG_STATE) || (x == THREAD_STATE_NONE) || (x == ARM_THREAD_STATE32) || (x == ARM_THREAD_STATE64) || (x == ARM_EXCEPTION_STATE64) || (x == ARM_NEON_STATE) || (x == ARM_NEON_STATE64) || (x == ARM_DEBUG_STATE32) || (x == ARM_DEBUG_STATE64) || (x == ARM_PAGEIN_STATE) || (ARM_STATE_FLAVOR_IS_OTHER_VALID(x)))
 #define VATTR_ALL_SUPPORTED(v) (((v)->va_active & (v)->va_supported) == (v)->va_active)
 #define VATTR_CLEAR_ACTIVE(v,a) ((v)->va_active &= ~VNODE_ATTR_ ## a)
 #define VATTR_CLEAR_SUPPORTED(v,a) ((v)->va_supported &= ~VNODE_ATTR_ ## a)
@@ -5466,7 +5412,6 @@
 #define VM_BEHAVIOR_SEQUENTIAL ((vm_behavior_t) 2)
 #define VM_BEHAVIOR_WILLNEED ((vm_behavior_t) 4)
 #define VM_BEHAVIOR_ZERO_WIRED_PAGES ((vm_behavior_t) 7)
-#define VM_DYLD64 ((user_addr_t) 0x00007FFF5FC00000ULL)
 #define VM_FLAGS_4GB_CHUNK 0x0004
 #define VM_FLAGS_ALIAS_MASK 0xFF000000
 #define VM_FLAGS_ANYWHERE 0x0001
@@ -5483,7 +5428,6 @@
 #define VM_FLAGS_SUPERPAGE_MASK 0x70000
 #define VM_FLAGS_SUPERPAGE_NONE (SUPERPAGE_NONE << VM_FLAGS_SUPERPAGE_SHIFT)
 #define VM_FLAGS_SUPERPAGE_SHIFT 16
-#define VM_FLAGS_SUPERPAGE_SIZE_2MB (SUPERPAGE_SIZE_2MB<<VM_FLAGS_SUPERPAGE_SHIFT)
 #define VM_FLAGS_SUPERPAGE_SIZE_ANY (SUPERPAGE_SIZE_ANY << VM_FLAGS_SUPERPAGE_SHIFT)
 #define VM_FLAGS_USER_ALLOCATE (VM_FLAGS_FIXED | VM_FLAGS_ANYWHERE | VM_FLAGS_PURGABLE | VM_FLAGS_4GB_CHUNK | VM_FLAGS_RANDOM_ADDR | VM_FLAGS_NO_CACHE | VM_FLAGS_PERMANENT | VM_FLAGS_OVERWRITE | VM_FLAGS_SUPERPAGE_MASK | VM_FLAGS_ALIAS_MASK)
 #define VM_FLAGS_USER_MAP (VM_FLAGS_USER_ALLOCATE | VM_FLAGS_RETURN_4K_DATA_ADDR | VM_FLAGS_RETURN_DATA_ADDR)
@@ -5495,6 +5439,8 @@
 #define VM_INHERIT_LAST_VALID VM_INHERIT_NONE
 #define VM_INHERIT_NONE ((vm_inherit_t) 2)
 #define VM_INHERIT_SHARE ((vm_inherit_t) 0)
+#define VM_KERNEL_ADDRESS(_va) ((((vm_address_t)VM_KERNEL_STRIP_PTR(_va)) >= VM_MIN_KERNEL_ADDRESS) && (((vm_address_t)VM_KERNEL_STRIP_PTR(_va)) <= VM_MAX_KERNEL_ADDRESS))
+#define VM_KERNEL_STRIP_PTR(_v) (_v)
 #define VM_LEDGER_FLAGS (VM_LEDGER_FLAG_NO_FOOTPRINT)
 #define VM_LEDGER_FLAG_NO_FOOTPRINT 0x00000001
 #define VM_LEDGER_TAG_DEFAULT 0x00000001
@@ -5504,18 +5450,16 @@
 #define VM_LEDGER_TAG_NETWORK 0x00000002
 #define VM_LEDGER_TAG_NEURAL 0x00000005
 #define VM_LEDGER_TAG_NONE 0x00000000
-#define VM_LIB64_SHR_DATA ((user_addr_t) 0x00007FFF60000000ULL)
-#define VM_LIB64_SHR_TEXT ((user_addr_t) 0x00007FFF80000000ULL)
 #define VM_MAKE_TAG(tag) ((tag) << 24)
 #define VM_MAP_ENTRY_MAX (256)
-#define VM_MAP_HIGH_START_BITS_COUNT 8
-#define VM_MAP_HIGH_START_BITS_SHIFT 27
 #define VM_MAP_INSPECT_NULL ((vm_map_inspect_t) NULL)
+#define VM_MAP_MAX_ADDRESS VM_MAX_ADDRESS
+#define VM_MAP_MIN_ADDRESS VM_MIN_ADDRESS
 #define VM_MAP_NULL ((vm_map_t) NULL)
 #define VM_MAP_READ_NULL ((vm_map_read_t) NULL)
-#define VM_MAX_ADDRESS ((vm_offset_t) 0xFFE00000)
-#define VM_MAX_PAGE_ADDRESS ((user_addr_t) 0x00007FFFFFE00000ULL)
-#define VM_MAX_USER_PAGE_ADDRESS ((user_addr_t)0x00007FFFFFFFF000ULL)
+#define VM_MAX_ADDRESS ((vm_address_t) 0x0000000080000000ULL)
+#define VM_MAX_KERNEL_ADDRESS ((vm_address_t) 0xfffffffbffffffffULL)
+#define VM_MAX_PAGE_ADDRESS MACH_VM_MAX_ADDRESS
 #define VM_MEMORY_ACCELERATE 75
 #define VM_MEMORY_ACCOUNTS 98
 #define VM_MEMORY_ANALYSIS_TOOL 10
@@ -5609,8 +5553,9 @@
 #define VM_MEMORY_VIDEOBITSTREAM 91
 #define VM_MEMORY_WEBASSEMBLY VM_MEMORY_JAVASCRIPT_CORE
 #define VM_MEMORY_WEBCORE_PURGEABLE_BUFFERS 69
-#define VM_MIN_ADDRESS ((vm_offset_t) 0)
-#define VM_MIN_ADDRESS64 ((user_addr_t) 0x0000000000000000ULL)
+#define VM_MIN_ADDRESS ((vm_address_t) 0x0000000000000000ULL)
+#define VM_MIN_KERNEL_ADDRESS ((vm_address_t) (0ULL - TiB(2)))
+#define VM_MIN_KERNEL_AND_KEXT_ADDRESS VM_MIN_KERNEL_ADDRESS
 #define VM_NAMED_ENTRY_NULL ((vm_named_entry_t) NULL)
 #define VM_PAGE_INFO_BASIC 1
 #define VM_PAGE_INFO_BASIC_COUNT ((mach_msg_type_number_t) (sizeof(vm_page_info_basic_data_t)/sizeof(int)))
@@ -5627,6 +5572,7 @@
 #define VM_PAGE_QUERY_PAGE_REF 0x4
 #define VM_PAGE_QUERY_PAGE_REUSABLE 0x800
 #define VM_PAGE_QUERY_PAGE_SPECULATIVE 0x40
+#define VM_PAGE_SIZE PAGE_SIZE
 #define VM_PRESSURE_TIME_WINDOW 5
 #define VM_PROT_ALL (VM_PROT_READ|VM_PROT_WRITE|VM_PROT_EXECUTE)
 #define VM_PROT_COPY ((vm_prot_t) 0x10)
@@ -5694,8 +5640,6 @@
 #define VM_SYNC_KILLPAGES ((vm_sync_t) 0x08)
 #define VM_SYNC_REUSABLEPAGES ((vm_sync_t) 0x40)
 #define VM_SYNC_SYNCHRONOUS ((vm_sync_t) 0x02)
-#define VM_USRSTACK32 ((vm_offset_t) 0xC0000000)
-#define VM_USRSTACK64 ((user_addr_t) 0x00007FFEEFC00000ULL)
 #define VM_VOLATILE_GROUP_0 (0 << VM_VOLATILE_GROUP_SHIFT)
 #define VM_VOLATILE_GROUP_1 (1 << VM_VOLATILE_GROUP_SHIFT)
 #define VM_VOLATILE_GROUP_2 (2 << VM_VOLATILE_GROUP_SHIFT)
@@ -5929,12 +5873,6 @@
 #define WORKGROUP_INTERVAL_UPDATE 0x4
 #define WRITECLOSE 0x0004
 #define W_OK (1<<1)
-#define X86_DEBUG_STATE32_COUNT x86_DEBUG_STATE32_COUNT
-#define X86_DEBUG_STATE64_COUNT x86_DEBUG_STATE64_COUNT
-#define X86_EXCEPTION_STATE64_COUNT x86_EXCEPTION_STATE64_COUNT
-#define X86_INSTRUCTION_STATE_COUNT x86_INSTRUCTION_STATE_COUNT
-#define X86_LAST_BRANCH_STATE_COUNT x86_LAST_BRANCH_STATE_COUNT
-#define X86_PAGEIN_STATE_COUNT x86_PAGEIN_STATE_COUNT
 #define XNUPOST_KCTYPE_TESTCONFIG 0x1040
 #define XUCRED_VERSION 0
 #define X_OK (1<<0)
@@ -5951,10 +5889,19 @@
 #define _APPEND_OK (1<<13)
 #define _ARCHITECTURE_BYTE_ORDER_H_ 
 #define _ARM_ARCH_H 
+#define _ARM_LIMITS_H_ 
+#define _ARM_LOCKS_H_ 
+#define _ARM_PAL_ROUTINES_H 
+#define _ARM_PARAM_H_ 
+#define _ARM_SIGNAL_ 1
+#define _ARM_THREAD_STATUS_H_ 
+#define _ARM__ENDIAN_H_ 
+#define _ARM__LIMITS_H_ 
+#define _ARM__PARAM_H_ 
 #define _BLKCNT_T 
 #define _BLKSIZE_T 
-#define _BSD_I386_VMPARAM_H_ 1
-#define _BSD_I386__TYPES_H_ 
+#define _BSD_ARM_VMPARAM_H_ 1
+#define _BSD_ARM__TYPES_H_ 
 #define _BSD_KERN_MACH_FAT_H_ 
 #define _BSD_KERN_MACH_LOADER_H_ 
 #define _BSD_MACHINE_ENDIAN_H_ 
@@ -5983,16 +5930,6 @@
 #define _FSOBJ_ID_T 
 #define _GID_T 
 #define _GUID_T 
-#define _I386_EFLAGS_H_ 
-#define _I386_FP_SAVE_H_ 
-#define _I386_LIMITS_H_ 
-#define _I386_LOCKS_H_ 
-#define _I386_PAL_ROUTINES_H 
-#define _I386_PARAM_H_ 
-#define _I386_SIGNAL_H_ 1
-#define _I386__ENDIAN_H_ 
-#define _I386__LIMITS_H_ 
-#define _I386__PARAM_H_ 
 #define _ID_T 
 #define _INO64_T 
 #define _INO_T 
@@ -6017,7 +5954,6 @@
 #define _KAUTH_FILESEC 
 #define _KAUTH_GUID 
 #define _KCDATA_H_ 
-#define _KERN_ASSERT_H_ 
 #define _KERN_AST_H_ 
 #define _KERN_CODESIGN_H_ 
 #define _KERN_DEBUG_H_ 
@@ -6039,6 +5975,15 @@
 #define _MACHINE_PAL_ROUTINES_H 
 #define _MACHO_LOADER_H_ 
 #define _MACHTYPES_H_ 
+#define _MACH_ARM_BOOLEAN_H_ 
+#define _MACH_ARM_EXCEPTION_H_ 
+#define _MACH_ARM_KERN_RETURN_H_ 
+#define _MACH_ARM_PROCESSOR_INFO_H_ 
+#define _MACH_ARM_SDT_ISA_H 
+#define _MACH_ARM_THREAD_STATE_H_ 
+#define _MACH_ARM_VM_PARAM_H_ 
+#define _MACH_ARM_VM_TYPES_H_ 
+#define _MACH_ARM__STRUCTS_H_ 
 #define _MACH_BOOLEAN_H_ 
 #define _MACH_CLOCK_TYPES_H_ 
 #define _MACH_COALITION_H_ 
@@ -6054,16 +5999,6 @@
 #define _MACH_HOST_INFO_H_ 
 #define _MACH_HOST_NOTIFY_H_ 
 #define _MACH_HOST_SPECIAL_PORTS_H_ 
-#define _MACH_I386_BOOLEAN_H_ 
-#define _MACH_I386_EXCEPTION_H_ 
-#define _MACH_I386_KERN_RETURN_H_ 
-#define _MACH_I386_PROCESSOR_INFO_H_ 
-#define _MACH_I386_SDT_ISA_H 
-#define _MACH_I386_THREAD_STATE_H_ 
-#define _MACH_I386_THREAD_STATUS_H_ 
-#define _MACH_I386_VM_PARAM_H_ 
-#define _MACH_I386_VM_TYPES_H_ 
-#define _MACH_I386__STRUCTS_H_ 
 #define _MACH_KERN_RETURN_H_ 
 #define _MACH_KMOD_H_ 
 #define _MACH_MACHINE_BOOLEAN_H_ 
@@ -6120,11 +6055,9 @@
 #define _OS_OSATOMIC_H 
 #define _OS_OSBASE_H 
 #define _OS_OSBYTEORDERARM_H 
-#define _OS_OSBYTEORDERI386_H 
 #define _OS_OSBYTEORDER_H 
 #define _OS_OSTYPES_H 
 #define _OS_OVERFLOW_H 
-#define _OS__OSBYTEORDERI386_H 
 #define _OS__OSBYTEORDER_H 
 #define _PC_2_SYMLINKS 15
 #define _PC_ALLOC_SIZE_MIN 16
@@ -6182,26 +6115,24 @@
 #define _SS_MAXSIZE 128
 #define _SS_PAD1SIZE (_SS_ALIGNSIZE - sizeof(__uint8_t) - sizeof(sa_family_t))
 #define _SS_PAD2SIZE (_SS_MAXSIZE - sizeof(__uint8_t) - sizeof(sa_family_t) - _SS_PAD1SIZE - _SS_ALIGNSIZE)
-#define _STATIC_ASSERT_OVERLOADED_MACRO(_1,_2,NAME,...) NAME
 #define _STDINT_H_ 
 #define _STRING_H_ 
-#define _STRUCT_FP_CONTROL struct fp_control
-#define _STRUCT_FP_STATUS struct fp_status
+#define _STRUCT_ARM_CPMU_STATE64 struct arm_cpmu_state64
+#define _STRUCT_ARM_DEBUG_STATE32 struct arm_debug_state32
+#define _STRUCT_ARM_DEBUG_STATE64 struct arm_debug_state64
+#define _STRUCT_ARM_EXCEPTION_STATE struct arm_exception_state
+#define _STRUCT_ARM_EXCEPTION_STATE64 struct arm_exception_state64
+#define _STRUCT_ARM_LEGACY_DEBUG_STATE struct arm_legacy_debug_state
+#define _STRUCT_ARM_NEON_STATE struct arm_neon_state
+#define _STRUCT_ARM_NEON_STATE64 struct arm_neon_state64
+#define _STRUCT_ARM_PAGEIN_STATE struct __arm_pagein_state
+#define _STRUCT_ARM_THREAD_STATE struct arm_thread_state
+#define _STRUCT_ARM_THREAD_STATE64 struct arm_thread_state64
+#define _STRUCT_ARM_VFP_STATE struct arm_vfp_state
 #define _STRUCT_IOVEC 
-#define _STRUCT_LAST_BRANCH_RECORD struct __last_branch_record
-#define _STRUCT_LAST_BRANCH_STATE struct __last_branch_state
 #define _STRUCT_MCONTEXT _STRUCT_MCONTEXT64
 #define _STRUCT_MCONTEXT32 struct mcontext32
 #define _STRUCT_MCONTEXT64 struct mcontext64
-#define _STRUCT_MCONTEXT64_FULL struct mcontext64_full
-#define _STRUCT_MCONTEXT_AVX32 struct mcontext_avx32
-#define _STRUCT_MCONTEXT_AVX512_32 struct mcontext_avx512_32
-#define _STRUCT_MCONTEXT_AVX512_64 struct mcontext_avx512_64
-#define _STRUCT_MCONTEXT_AVX512_64_FULL struct mcontext_avx512_64_full
-#define _STRUCT_MCONTEXT_AVX64 struct mcontext_avx64
-#define _STRUCT_MCONTEXT_AVX64_FULL struct mcontext_avx64_full
-#define _STRUCT_MMST_REG struct mmst_reg
-#define _STRUCT_OPMASK_REG struct opmask_reg
 #define _STRUCT_SIGALTSTACK struct sigaltstack
 #define _STRUCT_TIMESPEC struct timespec
 #define _STRUCT_TIMEVAL struct timeval
@@ -6215,25 +6146,6 @@
 #define _STRUCT_USER64_TIMEVAL struct user64_timeval
 #define _STRUCT_USER_TIMESPEC struct user_timespec
 #define _STRUCT_USER_TIMEVAL struct user_timeval
-#define _STRUCT_X86_AVX512_STATE32 struct i386_avx512_state
-#define _STRUCT_X86_AVX512_STATE64 struct x86_avx512_state64
-#define _STRUCT_X86_AVX_STATE32 struct i386_avx_state
-#define _STRUCT_X86_AVX_STATE64 struct x86_avx_state64
-#define _STRUCT_X86_CPMU_STATE64 struct x86_cpmu_state64
-#define _STRUCT_X86_DEBUG_STATE32 struct x86_debug_state32
-#define _STRUCT_X86_DEBUG_STATE64 struct x86_debug_state64
-#define _STRUCT_X86_EXCEPTION_STATE32 struct i386_exception_state
-#define _STRUCT_X86_EXCEPTION_STATE64 struct x86_exception_state64
-#define _STRUCT_X86_FLOAT_STATE32 struct i386_float_state
-#define _STRUCT_X86_FLOAT_STATE64 struct x86_float_state64
-#define _STRUCT_X86_INSTRUCTION_STATE struct __x86_instruction_state
-#define _STRUCT_X86_PAGEIN_STATE struct __x86_pagein_state
-#define _STRUCT_X86_THREAD_FULL_STATE64 struct x86_thread_full_state64
-#define _STRUCT_X86_THREAD_STATE32 struct i386_thread_state
-#define _STRUCT_X86_THREAD_STATE64 struct x86_thread_state64
-#define _STRUCT_XMM_REG struct xmm_reg
-#define _STRUCT_YMM_REG struct ymm_reg
-#define _STRUCT_ZMM_REG struct zmm_reg
 #define _SUSECONDS_T 
 #define _SYS_ATTR_H_ 
 #define _SYS_BUF_H_ 
@@ -6316,6 +6228,9 @@
 #define _WEXT_OK (1<<18)
 #define _WPERM_OK (1<<20)
 #define _WRITE_OK (1<<10)
+#define __AARCH64EL__ 1
+#define __AARCH64_CMODEL_SMALL__ 1
+#define __AARCH64_SIMD__ 1
 #define __API_A(x) __attribute__((availability(__API_AVAILABLE_PLATFORM_##x)))
 #define __API_APPLY_TO any(record, enum, enum_constant, function, objc_method, objc_category, objc_protocol, objc_interface, objc_property, type_alias, variable, field)
 #define __API_AVAILABLE(...) __API_AVAILABLE_GET_MACRO(__VA_ARGS__,__API_AVAILABLE8,__API_AVAILABLE7,__API_AVAILABLE6,__API_AVAILABLE5,__API_AVAILABLE4,__API_AVAILABLE3,__API_AVAILABLE2,__API_AVAILABLE1,__API_AVAILABLE0,0)(__VA_ARGS__)
@@ -6462,6 +6377,52 @@
 #define __APPLE_API_UNSTABLE 
 #define __APPLE_CC__ 6000
 #define __APPLE__ 1
+#define __ARM64_ARCH_8__ 1
+#define __ARM_64BIT_STATE 1
+#define __ARM_ACLE 200
+#define __ARM_ALIGN_MAX_STACK_PWR 4
+#define __ARM_ARCH 8
+#define __ARM_ARCH_8_3__ 1
+#define __ARM_ARCH_8_4__ 1
+#define __ARM_ARCH_8_5__ 1
+#define __ARM_ARCH_ISA_A64 1
+#define __ARM_ARCH_PROFILE 'A'
+#define __ARM_FEATURE_AES 1
+#define __ARM_FEATURE_ATOMICS 1
+#define __ARM_FEATURE_BTI 1
+#define __ARM_FEATURE_CLZ 1
+#define __ARM_FEATURE_COMPLEX 1
+#define __ARM_FEATURE_CRC32 1
+#define __ARM_FEATURE_CRYPTO 1
+#define __ARM_FEATURE_DIRECTED_ROUNDING 1
+#define __ARM_FEATURE_DIV 1
+#define __ARM_FEATURE_DOTPROD 1
+#define __ARM_FEATURE_FMA 1
+#define __ARM_FEATURE_FP16_FML 1
+#define __ARM_FEATURE_FP16_SCALAR_ARITHMETIC 1
+#define __ARM_FEATURE_FP16_VECTOR_ARITHMETIC 1
+#define __ARM_FEATURE_FRINT 1
+#define __ARM_FEATURE_IDIV 1
+#define __ARM_FEATURE_JCVT 1
+#define __ARM_FEATURE_LDREX 0xF
+#define __ARM_FEATURE_NUMERIC_MAXMIN 1
+#define __ARM_FEATURE_PAUTH 1
+#define __ARM_FEATURE_QRDMX 1
+#define __ARM_FEATURE_RCPC 1
+#define __ARM_FEATURE_SHA2 1
+#define __ARM_FEATURE_SHA3 1
+#define __ARM_FEATURE_SHA512 1
+#define __ARM_FEATURE_UNALIGNED 1
+#define __ARM_FP 0xE
+#define __ARM_FP16_ARGS 1
+#define __ARM_FP16_FORMAT_IEEE 1
+#define __ARM_MCONTEXT_H_ 
+#define __ARM_NEON 1
+#define __ARM_NEON_FP 0xE
+#define __ARM_NEON__ 1
+#define __ARM_PCS_AAPCS64 1
+#define __ARM_SIZEOF_MINIMAL_ENUM 4
+#define __ARM_SIZEOF_WCHAR_T 4
 #define __ATOMIC_ACQUIRE 2
 #define __ATOMIC_ACQ_REL 4
 #define __ATOMIC_CONSUME 1
@@ -7047,8 +7008,8 @@
 #define __AVAILABILITY_VERSIONS__ 
 #define __AVAILABILITY__ 
 #define __BEGIN_DECLS 
-#define __BIGGEST_ALIGNMENT__ 16
-#define __BITINT_MAXWIDTH__ 8388608
+#define __BIGGEST_ALIGNMENT__ 8
+#define __BITINT_MAXWIDTH__ 128
 #define __BLOCKS__ 1
 #define __BOOL_WIDTH__ 8
 #define __BRIDGEOS_2_0 20000
@@ -7099,7 +7060,7 @@
 #define __CONCAT(x,y) x ## y
 #define __CONSTANT_CFSTRINGS__ 1
 #define __COPYRIGHT(s) __IDSTRING(copyright,s)
-#define __DARWIN14_ALIAS(sym) __asm("_" __STRING(sym) __DARWIN_SUF_DARWIN14)
+#define __DARWIN14_ALIAS(sym) 
 #define __DARWIN_1050(sym) __asm("_" __STRING(sym) __DARWIN_SUF_1050)
 #define __DARWIN_1050ALIAS(sym) __asm("_" __STRING(sym) __DARWIN_SUF_1050 __DARWIN_SUF_UNIX03)
 #define __DARWIN_1050ALIAS_C(sym) __asm("_" __STRING(sym) __DARWIN_SUF_1050 __DARWIN_SUF_NON_CANCELABLE __DARWIN_SUF_UNIX03)
@@ -7114,6 +7075,8 @@
 #define __DARWIN_ALIGN32(p) ((__darwin_size_t)((__darwin_size_t)(p) + __DARWIN_ALIGNBYTES32) &~ __DARWIN_ALIGNBYTES32)
 #define __DARWIN_ALIGNBYTES (sizeof(__darwin_size_t) - 1)
 #define __DARWIN_ALIGNBYTES32 (sizeof(__uint32_t) - 1)
+#define __DARWIN_ARM_THREAD_STATE64_FLAGS_IB_SIGNED_LR 0x2
+#define __DARWIN_ARM_THREAD_STATE64_FLAGS_NO_PTRAUTH 0x1
 #define __DARWIN_BIG_ENDIAN 4321
 #define __DARWIN_BYTE_ORDER __DARWIN_LITTLE_ENDIAN
 #define __DARWIN_CLK_TCK 100
@@ -7140,6 +7103,7 @@
 #define __DARWIN_ONLY_64_BIT_INO_T 0
 #define __DARWIN_ONLY_UNIX_CONFORMANCE 0
 #define __DARWIN_ONLY_VERS_1050 0
+#define __DARWIN_OPAQUE_ARM_THREAD_STATE64 0
 #define __DARWIN_OSSwapConstInt16(x) ((__uint16_t)((((__uint16_t)(x) & 0xff00U) >> 8) | (((__uint16_t)(x) & 0x00ffU) << 8)))
 #define __DARWIN_OSSwapConstInt32(x) ((__uint32_t)((((__uint32_t)(x) & 0xff000000U) >> 24) | (((__uint32_t)(x) & 0x00ff0000U) >> 8) | (((__uint32_t)(x) & 0x0000ff00U) << 8) | (((__uint32_t)(x) & 0x000000ffU) << 24)))
 #define __DARWIN_OSSwapConstInt64(x) ((__uint64_t)((((__uint64_t)(x) & 0xff00000000000000ULL) >> 56) | (((__uint64_t)(x) & 0x00ff000000000000ULL) >> 40) | (((__uint64_t)(x) & 0x0000ff0000000000ULL) >> 24) | (((__uint64_t)(x) & 0x000000ff00000000ULL) >> 8) | (((__uint64_t)(x) & 0x00000000ff000000ULL) << 8) | (((__uint64_t)(x) & 0x0000000000ff0000ULL) << 24) | (((__uint64_t)(x) & 0x000000000000ff00ULL) << 40) | (((__uint64_t)(x) & 0x00000000000000ffULL) << 56)))
@@ -7153,7 +7117,6 @@
 #define __DARWIN_STRUCT_STATFS64 { uint32_t f_bsize; int32_t f_iosize; uint64_t f_blocks; uint64_t f_bfree; uint64_t f_bavail; uint64_t f_files; uint64_t f_ffree; fsid_t f_fsid; uid_t f_owner; uint32_t f_type; uint32_t f_flags; uint32_t f_fssubtype; char f_fstypename[MFSTYPENAMELEN]; char f_mntonname[MAXPATHLEN]; char f_mntfromname[MAXPATHLEN]; uint32_t f_flags_ext; uint32_t f_reserved[7]; }
 #define __DARWIN_SUF_1050 
 #define __DARWIN_SUF_64_BIT_INO_T 
-#define __DARWIN_SUF_DARWIN14 "_darwin14"
 #define __DARWIN_SUF_EXTSN "$DARWIN_EXTSN"
 #define __DARWIN_SUF_NON_CANCELABLE 
 #define __DARWIN_SUF_UNIX03 
@@ -7244,7 +7207,8 @@
 #define __FPCLASS_POSZERO 0x0040
 #define __FPCLASS_QNAN 0x0002
 #define __FPCLASS_SNAN 0x0001
-#define __FXSR__ 1
+#define __FP_FAST_FMA 1
+#define __FP_FAST_FMAF 1
 #define __GCC_ASM_FLAG_OUTPUTS__ 1
 #define __GCC_ATOMIC_BOOL_LOCK_FREE 2
 #define __GCC_ATOMIC_CHAR16_T_LOCK_FREE 2
@@ -7259,7 +7223,6 @@
 #define __GCC_ATOMIC_WCHAR_T_LOCK_FREE 2
 #define __GCC_HAVE_DWARF2_CFI_ASM 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_1 1
-#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_8 1
@@ -7269,7 +7232,7 @@
 #define __GNUC_VA_LIST 
 #define __GNUC__ 4
 #define __GXX_ABI_VERSION 1002
-#define __I386_MCONTEXT_H_ 
+#define __HAVE_FUNCTION_MULTI_VERSIONING 1
 #define __IDSTRING(name,string) static const char name[] __used = string
 #define __INT16_C_SUFFIX__ 
 #define __INT16_FMTd__ "hd"
@@ -7432,22 +7395,20 @@
 #define __IPHONE_9_2 90200
 #define __IPHONE_9_3 90300
 #define __KPI_SOCKET__ 
-#define __LAHF_SAHF__ 1
-#define __LASTBRANCH_MAX 32
-#define __LDBL_DECIMAL_DIG__ 21
-#define __LDBL_DENORM_MIN__ 3.64519953188247460253e-4951L
-#define __LDBL_DIG__ 18
-#define __LDBL_EPSILON__ 1.08420217248550443401e-19L
+#define __LDBL_DECIMAL_DIG__ 17
+#define __LDBL_DENORM_MIN__ 4.9406564584124654e-324L
+#define __LDBL_DIG__ 15
+#define __LDBL_EPSILON__ 2.2204460492503131e-16L
 #define __LDBL_HAS_DENORM__ 1
 #define __LDBL_HAS_INFINITY__ 1
 #define __LDBL_HAS_QUIET_NAN__ 1
-#define __LDBL_MANT_DIG__ 64
-#define __LDBL_MAX_10_EXP__ 4932
-#define __LDBL_MAX_EXP__ 16384
-#define __LDBL_MAX__ 1.18973149535723176502e+4932L
-#define __LDBL_MIN_10_EXP__ (-4931)
-#define __LDBL_MIN_EXP__ (-16381)
-#define __LDBL_MIN__ 3.36210314311209350626e-4932L
+#define __LDBL_MANT_DIG__ 53
+#define __LDBL_MAX_10_EXP__ 308
+#define __LDBL_MAX_EXP__ 1024
+#define __LDBL_MAX__ 1.7976931348623157e+308L
+#define __LDBL_MIN_10_EXP__ (-307)
+#define __LDBL_MIN_EXP__ (-1021)
+#define __LDBL_MIN__ 2.2250738585072014e-308L
 #define __LITTLE_ENDIAN__ 1
 #define __LLONG_WIDTH__ 64
 #define __LONG_LONG_MAX__ 9223372036854775807LL
@@ -7524,7 +7485,6 @@
 #define __MIG_STRNCPY_ZEROFILL_FORWARD_TYPE_DECLS__ 
 #define __MISMATCH_TAGS_POP 
 #define __MISMATCH_TAGS_PUSH 
-#define __MMX__ 1
 #define __MigPackStructs 1
 #define __MigTypeCheck 1
 #define __NDR_convert__ 0
@@ -7535,10 +7495,9 @@
 #define __NEW_SCHEDULING_FRAMEWORK__ 
 #define __NO_INLINE__ 1
 #define __NO_MATH_ERRNO__ 1
-#define __NO_MATH_INLINES 1
 #define __NULLABILITY_COMPLETENESS_POP _Pragma("clang diagnostic pop")
 #define __NULLABILITY_COMPLETENESS_PUSH _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wnullability-completeness\"")
-#define __OBJC_BOOL_IS_BOOL 0
+#define __OBJC_BOOL_IS_BOOL 1
 #define __OPENCL_MEMORY_SCOPE_ALL_SVM_DEVICES 3
 #define __OPENCL_MEMORY_SCOPE_DEVICE 2
 #define __OPENCL_MEMORY_SCOPE_SUB_GROUP 4
@@ -7576,7 +7535,6 @@
 #define __PTRDIFF_MAX__ 9223372036854775807L
 #define __PTRDIFF_TYPE__ long int
 #define __PTRDIFF_WIDTH__ 64
-#define __Panic(fmt,args...) panic(fmt, ##args)
 #define __QUEUE_ELT_VALIDATE(elt) do { } while (0)
 #define __RCSID(s) __IDSTRING(rcsid,s)
 #define __REGISTER_PREFIX__ 
@@ -7599,8 +7557,6 @@
 #define __SAFE_CAST_PTR(type,var) ((type)(var))
 #define __SCCSID(s) __IDSTRING(sccsid,s)
 #define __SCHAR_MAX__ 127
-#define __SEG_FS 1
-#define __SEG_GS 1
 #define __SHRT_MAX__ 32767
 #define __SHRT_WIDTH__ 16
 #define __SIG_ATOMIC_MAX__ 2147483647
@@ -7609,7 +7565,7 @@
 #define __SIZEOF_FLOAT__ 4
 #define __SIZEOF_INT128__ 16
 #define __SIZEOF_INT__ 4
-#define __SIZEOF_LONG_DOUBLE__ 16
+#define __SIZEOF_LONG_DOUBLE__ 8
 #define __SIZEOF_LONG_LONG__ 8
 #define __SIZEOF_LONG__ 8
 #define __SIZEOF_POINTER__ 8
@@ -7630,14 +7586,7 @@
 #define __SPI_AVAILABLE_END(...) 
 #define __SPI_DEPRECATED(...) 
 #define __SPI_DEPRECATED_WITH_REPLACEMENT(...) 
-#define __SSE2_MATH__ 1
-#define __SSE2__ 1
-#define __SSE3__ 1
-#define __SSE4_1__ 1
-#define __SSE_MATH__ 1
-#define __SSE__ 1
 #define __SSP__ 1
-#define __SSSE3__ 1
 #define __STDARG_H 
 #define __STDBOOL_H 
 #define __STDC_HOSTED__ 1
@@ -7869,13 +7818,12 @@
 #define __WINT_WIDTH__ 32
 #define __WORDSIZE 64
 #define __XNU_PRIVATE_EXTERN __attribute__((visibility("hidden")))
+#define __aarch64__ 1
 #define __abortlike __dead2 __cold __not_tail_called
 #define __alloc_size(...) __attribute__((alloc_size(__VA_ARGS__)))
-#define __amd64 1
-#define __amd64__ 1
 #define __apple_build_version__ 16000026
+#define __arm64 1
 #define __arm64__ 1
-#define __assert_only __unused
 #define __block __attribute__((__blocks__(byref)))
 #define __bool_true_false_are_defined 1
 #define __clang__ 1
@@ -7885,13 +7833,10 @@
 #define __clang_patchlevel__ 0
 #define __clang_version__ "16.0.0 (clang-1600.0.26.6)"
 #define __clang_wide_literal_encoding__ "UTF-32"
-#define __code_model_small__ 1
 #define __cold __attribute__((__cold__))
 #define __compiler_barrier() __asm__ __volatile__("" ::: "memory")
 #define __const const
 #define __container_of(ptr,type,field) __extension__({ const __typeof__(((type *)NULL)->field) *__ptr = (ptr); (type *)((uintptr_t)__ptr - offsetof(type, field)); })
-#define __core2 1
-#define __core2__ 1
 #define __darwin_obsz(object) __builtin_object_size (object, _USE_FORTIFY_LEVEL > 1 ? 1 : 0)
 #define __darwin_obsz0(object) __builtin_object_size (object, 0)
 #define __dead 
@@ -7959,15 +7904,12 @@
 #define __restrict restrict
 #define __result_use_check __attribute__((__warn_unused_result__))
 #define __scanflike(fmtarg,firstvararg) __attribute__((__format__ (__scanf__, fmtarg, firstvararg)))
-#define __seg_fs __attribute__((address_space(257)))
-#define __seg_gs __attribute__((address_space(256)))
 #define __signed signed
 #define __strfmonlike(fmtarg,firstvararg) __attribute__((__format__ (__strfmon__, fmtarg, firstvararg)))
 #define __strftimelike(fmtarg) __attribute__((__format__ (__strftime__, fmtarg, 0)))
 #define __strong 
 #define __swift_compiler_version_at_least(...) 1
 #define __swift_unavailable(_msg) __attribute__((__availability__(swift, unavailable, message=_msg)))
-#define __tune_core2__ 1
 #define __unavailable __attribute__((__unavailable__))
 #define __unreachable_ok_pop _Pragma("clang diagnostic pop")
 #define __unreachable_ok_push _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wunreachable-code\"")
@@ -7977,16 +7919,10 @@
 #define __va_copy(d,s) __builtin_va_copy(d, s)
 #define __volatile volatile
 #define __weak __attribute__((objc_gc(weak)))
-#define __x86_64 1
-#define __x86_64__ 1
 #define _mach_vm_user_ 
-#define _static_assert_1_arg(ex) _Static_assert((ex), #ex)
-#define _static_assert_2_args(ex,str) _Static_assert((ex), str)
 #define _task_user_ 
 #define _thread_act_user_ 
 #define _vm_map_user_ 
-#define assert(ex) ((void)0)
-#define assertf(ex,fmt,args...) ((void)0)
 #define atop(x) ((vm_address_t)(x) >> PAGE_SHIFT)
 #define atop_32(x) ((uint32_t)(x) >> PAGE_SHIFT)
 #define atop_64(x) ((uint64_t)(x) >> PAGE_SHIFT)
@@ -8102,16 +8038,6 @@
 #define htonl(x) __DARWIN_OSSwapInt32(x)
 #define htonll(x) __DARWIN_OSSwapInt64(x)
 #define htons(x) __DARWIN_OSSwapInt16(x)
-#define i386_EXCEPTION_STATE 3
-#define i386_EXCEPTION_STATE_COUNT ((mach_msg_type_number_t) ( sizeof (i386_exception_state_t) / sizeof (int) ))
-#define i386_FLOAT_STATE 2
-#define i386_FLOAT_STATE_COUNT ((mach_msg_type_number_t) (sizeof(i386_float_state_t)/sizeof(unsigned int)))
-#define i386_THREAD_STATE 1
-#define i386_THREAD_STATE_COUNT ((mach_msg_type_number_t) ( sizeof (i386_thread_state_t) / sizeof (int) ))
-#define i386_btop(x) ((ppnum_t)((x) >> I386_PGSHIFT))
-#define i386_ptob(x) (((pmap_paddr_t)(x)) << I386_PGSHIFT)
-#define i386_round_page(x) ((((pmap_paddr_t)(x)) + I386_PGBYTES - 1) & ~(I386_PGBYTES-1))
-#define i386_trunc_page(x) (((pmap_paddr_t)(x)) & ~(I386_PGBYTES-1))
 #define invalid_memory_object_flavor(f) (f != MEMORY_OBJECT_ATTRIBUTE_INFO && f != MEMORY_OBJECT_PERFORMANCE_INFO && f != OLD_MEMORY_OBJECT_BEHAVIOR_INFO && f != MEMORY_OBJECT_BEHAVIOR_INFO && f != OLD_MEMORY_OBJECT_ATTRIBUTE_INFO)
 #define invalid_policy(policy) ((policy) != POLICY_TIMESHARE && (policy) != POLICY_RR && (policy) != POLICY_FIFO)
 #define iokit_common_err(return) (sys_iokit|sub_iokit_common|return)
@@ -8186,8 +8112,7 @@
 #define mach_vm_MSG_COUNT 26
 #define mach_vm_round_page(x) (((mach_vm_offset_t)(x) + PAGE_MASK) & ~((signed)PAGE_MASK))
 #define mach_vm_trunc_page(x) ((mach_vm_offset_t)(x) & ~((signed)PAGE_MASK))
-#define machine_btop(x) i386_btop(x)
-#define machine_ptob(x) i386_ptob(x)
+#define machine_ptob(x) ((x) << PAGE_SHIFT)
 #define major(x) ((int32_t)(((u_int32_t)(x) >> 24) & 0xff))
 #define makedev(x,y) ((dev_t)(((x) << 24) | (y)))
 #define memccpy(dest,...) __builtin___memccpy_chk (dest, __VA_ARGS__, __darwin_obsz0 (dest))
@@ -8287,7 +8212,6 @@
 #define st_birthtime st_birthtimespec.tv_sec
 #define st_ctime st_ctimespec.tv_sec
 #define st_mtime st_mtimespec.tv_sec
-#define static_assert(...) _STATIC_ASSERT_OVERLOADED_MACRO(__VA_ARGS__, _static_assert_2_args, _static_assert_1_arg)(__VA_ARGS__)
 #define stoc(x) (x)
 #define stpcpy(dest,...) __builtin___stpcpy_chk (dest, __VA_ARGS__, __darwin_obsz (dest))
 #define stpncpy(dest,...) __builtin___stpncpy_chk (dest, __VA_ARGS__, __darwin_obsz (dest))
@@ -8370,6 +8294,8 @@
 #define trunc_page_64(x) ((uint64_t)(x) & ~((uint64_t)PAGE_MASK_64))
 #define trunc_page_mask_32(x,mask) ((uint32_t)(x) & ~((uint32_t)(mask)))
 #define trunc_page_mask_64(x,mask) ((uint64_t)(x) & ~((uint64_t)(mask)))
+#define ts_32 uts.ts_32
+#define ts_64 uts.ts_64
 #define unix_err(errno) (err_kern|err_sub(3)|errno)
 #define v_fifoinfo v_un.vu_fifoinfo
 #define v_mountedhere v_un.vu_mountedhere
@@ -8383,49 +8309,3 @@
 #define vm_map_MSG_COUNT 33
 #define vm_pager_null ((vm_pager_t) 0)
 #define vnode_lock_convert(v) lck_mtx_convert_spin(&(v)->v_lock)
-#define x86_AVX512_STATE (x86_AVX512_STATE32 + 2)
-#define x86_AVX512_STATE32 19
-#define x86_AVX512_STATE32_COUNT ((mach_msg_type_number_t) (sizeof(x86_avx512_state32_t)/sizeof(unsigned int)))
-#define x86_AVX512_STATE64 (x86_AVX512_STATE32 + 1)
-#define x86_AVX512_STATE64_COUNT ((mach_msg_type_number_t) (sizeof(x86_avx512_state64_t)/sizeof(unsigned int)))
-#define x86_AVX512_STATE_COUNT ((mach_msg_type_number_t) (sizeof(x86_avx512_state_t)/sizeof(unsigned int)))
-#define x86_AVX_STATE (x86_AVX_STATE32 + 2)
-#define x86_AVX_STATE32 16
-#define x86_AVX_STATE32_COUNT ((mach_msg_type_number_t) (sizeof(x86_avx_state32_t)/sizeof(unsigned int)))
-#define x86_AVX_STATE64 (x86_AVX_STATE32 + 1)
-#define x86_AVX_STATE64_COUNT ((mach_msg_type_number_t) (sizeof(x86_avx_state64_t)/sizeof(unsigned int)))
-#define x86_AVX_STATE_COUNT ((mach_msg_type_number_t) (sizeof(x86_avx_state_t)/sizeof(unsigned int)))
-#define x86_DEBUG_STATE 12
-#define x86_DEBUG_STATE32 10
-#define x86_DEBUG_STATE32_COUNT ((mach_msg_type_number_t) ( sizeof (x86_debug_state32_t) / sizeof (int) ))
-#define x86_DEBUG_STATE64 11
-#define x86_DEBUG_STATE64_COUNT ((mach_msg_type_number_t) ( sizeof (x86_debug_state64_t) / sizeof (int) ))
-#define x86_DEBUG_STATE_COUNT ((mach_msg_type_number_t) (sizeof(x86_debug_state_t)/sizeof(unsigned int)))
-#define x86_EXCEPTION_STATE 9
-#define x86_EXCEPTION_STATE32 3
-#define x86_EXCEPTION_STATE32_COUNT ((mach_msg_type_number_t) ( sizeof (x86_exception_state32_t) / sizeof (int) ))
-#define x86_EXCEPTION_STATE64 6
-#define x86_EXCEPTION_STATE64_COUNT ((mach_msg_type_number_t) ( sizeof (x86_exception_state64_t) / sizeof (int) ))
-#define x86_EXCEPTION_STATE_COUNT ((mach_msg_type_number_t) (sizeof(x86_exception_state_t)/sizeof(unsigned int)))
-#define x86_FLOAT_STATE 8
-#define x86_FLOAT_STATE32 2
-#define x86_FLOAT_STATE32_COUNT ((mach_msg_type_number_t) (sizeof(x86_float_state32_t)/sizeof(unsigned int)))
-#define x86_FLOAT_STATE64 5
-#define x86_FLOAT_STATE64_COUNT ((mach_msg_type_number_t) (sizeof(x86_float_state64_t)/sizeof(unsigned int)))
-#define x86_FLOAT_STATE_COUNT ((mach_msg_type_number_t) (sizeof(x86_float_state_t)/sizeof(unsigned int)))
-#define x86_INSTRUCTION_STATE 24
-#define x86_INSTRUCTION_STATE_CACHELINE_SIZE 64
-#define x86_INSTRUCTION_STATE_COUNT ((mach_msg_type_number_t)(sizeof(x86_instruction_state_t) / sizeof(int)))
-#define x86_INSTRUCTION_STATE_MAX_INSN_BYTES (2448 - 64 - 4)
-#define x86_LAST_BRANCH_STATE 25
-#define x86_LAST_BRANCH_STATE_COUNT ((mach_msg_type_number_t)(sizeof(last_branch_state_t) / sizeof(int)))
-#define x86_PAGEIN_STATE 22
-#define x86_PAGEIN_STATE_COUNT ((mach_msg_type_number_t)(sizeof(x86_pagein_state_t) / sizeof(int)))
-#define x86_THREAD_FULL_STATE64 23
-#define x86_THREAD_FULL_STATE64_COUNT ((mach_msg_type_number_t) ( sizeof (x86_thread_full_state64_t) / sizeof (int) ))
-#define x86_THREAD_STATE 7
-#define x86_THREAD_STATE32 1
-#define x86_THREAD_STATE32_COUNT ((mach_msg_type_number_t) ( sizeof (x86_thread_state32_t) / sizeof (int) ))
-#define x86_THREAD_STATE64 4
-#define x86_THREAD_STATE64_COUNT ((mach_msg_type_number_t) ( sizeof (x86_thread_state64_t) / sizeof (int) ))
-#define x86_THREAD_STATE_COUNT ((mach_msg_type_number_t) ( sizeof (x86_thread_state_t) / sizeof (int) ))

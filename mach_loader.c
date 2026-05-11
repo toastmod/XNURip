@@ -64,45 +64,21 @@ typedef int64_t user_long_t;
 typedef u_int64_t user_ulong_t;
 typedef int64_t user_time_t;
 typedef int64_t user_off_t;
-typedef __uint64_t user64_addr_t __attribute__((aligned(8)));
-typedef __uint64_t user64_size_t __attribute__((aligned(8)));
-typedef __int64_t user64_ssize_t __attribute__((aligned(8)));
-typedef __int64_t user64_long_t __attribute__((aligned(8)));
-typedef __uint64_t user64_ulong_t __attribute__((aligned(8)));
-typedef __int64_t user64_time_t __attribute__((aligned(8)));
-typedef __int64_t user64_off_t __attribute__((aligned(8)));
+typedef __uint64_t user64_addr_t;
+typedef __uint64_t user64_size_t;
+typedef __int64_t user64_ssize_t;
+typedef __int64_t user64_long_t;
+typedef __uint64_t user64_ulong_t;
+typedef __int64_t user64_time_t;
+typedef __int64_t user64_off_t;
 typedef __uint32_t user32_addr_t;
 typedef __uint32_t user32_size_t;
 typedef __int32_t user32_ssize_t;
 typedef __int32_t user32_long_t;
 typedef __uint32_t user32_ulong_t;
 typedef __int32_t user32_time_t;
-typedef __int64_t user32_off_t __attribute__((aligned(4)));
+typedef __int64_t user32_off_t;
 typedef u_int64_t syscall_arg_t;
-static inline
-__uint16_t
-_OSSwapInt16(
- __uint16_t _data
- )
-{
- return (__uint16_t)((_data << 8) | (_data >> 8));
-}
-static inline
-__uint32_t
-_OSSwapInt32(
- __uint32_t _data
- )
-{
- return __builtin_bswap32(_data);
-}
-static inline
-__uint64_t
-_OSSwapInt64(
- __uint64_t _data
- )
-{
- return __builtin_bswap64(_data);
-}
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
@@ -835,576 +811,95 @@ user_size_t uio_curriovlen( uio_t a_uio );
 extern int uiomove(const char * cp, int n, struct uio *uio);
 extern int uiomove64(const __uint64_t cp, int n, struct uio *uio);
 typedef int sig_atomic_t;
-struct i386_thread_state
+struct arm_exception_state
 {
-    unsigned int eax;
-    unsigned int ebx;
-    unsigned int ecx;
-    unsigned int edx;
-    unsigned int edi;
-    unsigned int esi;
-    unsigned int ebp;
-    unsigned int esp;
-    unsigned int ss;
-    unsigned int eflags;
-    unsigned int eip;
-    unsigned int cs;
-    unsigned int ds;
-    unsigned int es;
-    unsigned int fs;
-    unsigned int gs;
+ __uint32_t exception;
+ __uint32_t fsr;
+ __uint32_t far;
 };
-struct fp_control
+struct arm_exception_state64
 {
-    unsigned short invalid :1,
-        denorm :1,
-    zdiv :1,
-    ovrfl :1,
-    undfl :1,
-    precis :1,
-     :2,
-    pc :2,
-    rc :2,
-            :1,
-     :3;
+ __uint64_t far;
+ __uint32_t esr;
+ __uint32_t exception;
 };
-typedef struct fp_control fp_control_t;
-struct fp_status
+struct arm_thread_state
 {
-    unsigned short invalid :1,
-        denorm :1,
-    zdiv :1,
-    ovrfl :1,
-    undfl :1,
-    precis :1,
-    stkflt :1,
-    errsumm :1,
-    c0 :1,
-    c1 :1,
-    c2 :1,
-    tos :3,
-    c3 :1,
-    busy :1;
+ __uint32_t r[13];
+ __uint32_t sp;
+ __uint32_t lr;
+ __uint32_t pc;
+ __uint32_t cpsr;
 };
-typedef struct fp_status fp_status_t;
-struct mmst_reg
+struct arm_thread_state64
 {
- char mmst_reg[10];
- char mmst_rsrv[6];
+ __uint64_t x[29];
+ __uint64_t fp;
+ __uint64_t lr;
+ __uint64_t sp;
+ __uint64_t pc;
+ __uint32_t cpsr;
+ __uint32_t flags;
 };
-struct xmm_reg
+struct arm_vfp_state
 {
- char xmm_reg[16];
+ __uint32_t r[64];
+ __uint32_t fpscr;
 };
-struct ymm_reg
+struct arm_neon_state64
 {
- char ymm_reg[32];
+ __uint128_t q[32];
+ uint32_t fpsr;
+ uint32_t fpcr;
 };
-struct zmm_reg
+struct arm_neon_state
 {
- char zmm_reg[64];
+ __uint128_t q[16];
+ uint32_t fpsr;
+ uint32_t fpcr;
 };
-struct opmask_reg
-{
- char opmask_reg[8];
-};
-struct i386_float_state
-{
- int fpu_reserved[2];
- struct fp_control fpu_fcw;
- struct fp_status fpu_fsw;
- __uint8_t fpu_ftw;
- __uint8_t fpu_rsrv1;
- __uint16_t fpu_fop;
- __uint32_t fpu_ip;
- __uint16_t fpu_cs;
- __uint16_t fpu_rsrv2;
- __uint32_t fpu_dp;
- __uint16_t fpu_ds;
- __uint16_t fpu_rsrv3;
- __uint32_t fpu_mxcsr;
- __uint32_t fpu_mxcsrmask;
- struct mmst_reg fpu_stmm0;
- struct mmst_reg fpu_stmm1;
- struct mmst_reg fpu_stmm2;
- struct mmst_reg fpu_stmm3;
- struct mmst_reg fpu_stmm4;
- struct mmst_reg fpu_stmm5;
- struct mmst_reg fpu_stmm6;
- struct mmst_reg fpu_stmm7;
- struct xmm_reg fpu_xmm0;
- struct xmm_reg fpu_xmm1;
- struct xmm_reg fpu_xmm2;
- struct xmm_reg fpu_xmm3;
- struct xmm_reg fpu_xmm4;
- struct xmm_reg fpu_xmm5;
- struct xmm_reg fpu_xmm6;
- struct xmm_reg fpu_xmm7;
- char fpu_rsrv4[14*16];
- int fpu_reserved1;
-};
-struct i386_avx_state
-{
- int fpu_reserved[2];
- struct fp_control fpu_fcw;
- struct fp_status fpu_fsw;
- __uint8_t fpu_ftw;
- __uint8_t fpu_rsrv1;
- __uint16_t fpu_fop;
- __uint32_t fpu_ip;
- __uint16_t fpu_cs;
- __uint16_t fpu_rsrv2;
- __uint32_t fpu_dp;
- __uint16_t fpu_ds;
- __uint16_t fpu_rsrv3;
- __uint32_t fpu_mxcsr;
- __uint32_t fpu_mxcsrmask;
- struct mmst_reg fpu_stmm0;
- struct mmst_reg fpu_stmm1;
- struct mmst_reg fpu_stmm2;
- struct mmst_reg fpu_stmm3;
- struct mmst_reg fpu_stmm4;
- struct mmst_reg fpu_stmm5;
- struct mmst_reg fpu_stmm6;
- struct mmst_reg fpu_stmm7;
- struct xmm_reg fpu_xmm0;
- struct xmm_reg fpu_xmm1;
- struct xmm_reg fpu_xmm2;
- struct xmm_reg fpu_xmm3;
- struct xmm_reg fpu_xmm4;
- struct xmm_reg fpu_xmm5;
- struct xmm_reg fpu_xmm6;
- struct xmm_reg fpu_xmm7;
- char fpu_rsrv4[14*16];
- int fpu_reserved1;
- char avx_reserved1[64];
- struct xmm_reg fpu_ymmh0;
- struct xmm_reg fpu_ymmh1;
- struct xmm_reg fpu_ymmh2;
- struct xmm_reg fpu_ymmh3;
- struct xmm_reg fpu_ymmh4;
- struct xmm_reg fpu_ymmh5;
- struct xmm_reg fpu_ymmh6;
- struct xmm_reg fpu_ymmh7;
-};
-struct i386_avx512_state
-{
- int fpu_reserved[2];
- struct fp_control fpu_fcw;
- struct fp_status fpu_fsw;
- __uint8_t fpu_ftw;
- __uint8_t fpu_rsrv1;
- __uint16_t fpu_fop;
- __uint32_t fpu_ip;
- __uint16_t fpu_cs;
- __uint16_t fpu_rsrv2;
- __uint32_t fpu_dp;
- __uint16_t fpu_ds;
- __uint16_t fpu_rsrv3;
- __uint32_t fpu_mxcsr;
- __uint32_t fpu_mxcsrmask;
- struct mmst_reg fpu_stmm0;
- struct mmst_reg fpu_stmm1;
- struct mmst_reg fpu_stmm2;
- struct mmst_reg fpu_stmm3;
- struct mmst_reg fpu_stmm4;
- struct mmst_reg fpu_stmm5;
- struct mmst_reg fpu_stmm6;
- struct mmst_reg fpu_stmm7;
- struct xmm_reg fpu_xmm0;
- struct xmm_reg fpu_xmm1;
- struct xmm_reg fpu_xmm2;
- struct xmm_reg fpu_xmm3;
- struct xmm_reg fpu_xmm4;
- struct xmm_reg fpu_xmm5;
- struct xmm_reg fpu_xmm6;
- struct xmm_reg fpu_xmm7;
- char fpu_rsrv4[14*16];
- int fpu_reserved1;
- char avx_reserved1[64];
- struct xmm_reg fpu_ymmh0;
- struct xmm_reg fpu_ymmh1;
- struct xmm_reg fpu_ymmh2;
- struct xmm_reg fpu_ymmh3;
- struct xmm_reg fpu_ymmh4;
- struct xmm_reg fpu_ymmh5;
- struct xmm_reg fpu_ymmh6;
- struct xmm_reg fpu_ymmh7;
- struct opmask_reg fpu_k0;
- struct opmask_reg fpu_k1;
- struct opmask_reg fpu_k2;
- struct opmask_reg fpu_k3;
- struct opmask_reg fpu_k4;
- struct opmask_reg fpu_k5;
- struct opmask_reg fpu_k6;
- struct opmask_reg fpu_k7;
- struct ymm_reg fpu_zmmh0;
- struct ymm_reg fpu_zmmh1;
- struct ymm_reg fpu_zmmh2;
- struct ymm_reg fpu_zmmh3;
- struct ymm_reg fpu_zmmh4;
- struct ymm_reg fpu_zmmh5;
- struct ymm_reg fpu_zmmh6;
- struct ymm_reg fpu_zmmh7;
-};
-struct i386_exception_state
-{
- __uint16_t trapno;
- __uint16_t cpu;
- __uint32_t err;
- __uint32_t faultvaddr;
-};
-struct x86_debug_state32
-{
- unsigned int dr0;
- unsigned int dr1;
- unsigned int dr2;
- unsigned int dr3;
- unsigned int dr4;
- unsigned int dr5;
- unsigned int dr6;
- unsigned int dr7;
-};
-struct __x86_instruction_state
-{
-        int insn_stream_valid_bytes;
-        int insn_offset;
- int out_of_synch;
-        __uint8_t insn_bytes[(2448 - 64 - 4)];
- __uint8_t insn_cacheline[64];
-};
-struct __last_branch_record
-{
- __uint64_t from_ip;
- __uint64_t to_ip;
- __uint32_t mispredict : 1,
-   tsx_abort : 1,
-   in_tsx : 1,
-   cycle_count: 16,
-   reserved : 13;
-};
-struct __last_branch_state
-{
-        int lbr_count;
- __uint32_t lbr_supported_tsx : 1,
-     lbr_supported_cycle_count : 1,
-     reserved : 30;
- struct __last_branch_record lbrs[32];
-};
-struct __x86_pagein_state
+struct __arm_pagein_state
 {
  int __pagein_error;
 };
-struct x86_thread_state64
+struct arm_legacy_debug_state
 {
- __uint64_t rax;
- __uint64_t rbx;
- __uint64_t rcx;
- __uint64_t rdx;
- __uint64_t rdi;
- __uint64_t rsi;
- __uint64_t rbp;
- __uint64_t rsp;
- __uint64_t r8;
- __uint64_t r9;
- __uint64_t r10;
- __uint64_t r11;
- __uint64_t r12;
- __uint64_t r13;
- __uint64_t r14;
- __uint64_t r15;
- __uint64_t rip;
- __uint64_t rflags;
- __uint64_t cs;
- __uint64_t fs;
- __uint64_t gs;
+ __uint32_t bvr[16];
+ __uint32_t bcr[16];
+ __uint32_t wvr[16];
+ __uint32_t wcr[16];
 };
-struct x86_thread_full_state64
+struct arm_debug_state32
 {
- struct x86_thread_state64 ss64;
- __uint64_t ds;
- __uint64_t es;
- __uint64_t ss;
- __uint64_t gsbase;
+ __uint32_t bvr[16];
+ __uint32_t bcr[16];
+ __uint32_t wvr[16];
+ __uint32_t wcr[16];
+ __uint64_t mdscr_el1;
 };
-struct x86_float_state64
+struct arm_debug_state64
 {
- int fpu_reserved[2];
- struct fp_control fpu_fcw;
- struct fp_status fpu_fsw;
- __uint8_t fpu_ftw;
- __uint8_t fpu_rsrv1;
- __uint16_t fpu_fop;
- __uint32_t fpu_ip;
- __uint16_t fpu_cs;
- __uint16_t fpu_rsrv2;
- __uint32_t fpu_dp;
- __uint16_t fpu_ds;
- __uint16_t fpu_rsrv3;
- __uint32_t fpu_mxcsr;
- __uint32_t fpu_mxcsrmask;
- struct mmst_reg fpu_stmm0;
- struct mmst_reg fpu_stmm1;
- struct mmst_reg fpu_stmm2;
- struct mmst_reg fpu_stmm3;
- struct mmst_reg fpu_stmm4;
- struct mmst_reg fpu_stmm5;
- struct mmst_reg fpu_stmm6;
- struct mmst_reg fpu_stmm7;
- struct xmm_reg fpu_xmm0;
- struct xmm_reg fpu_xmm1;
- struct xmm_reg fpu_xmm2;
- struct xmm_reg fpu_xmm3;
- struct xmm_reg fpu_xmm4;
- struct xmm_reg fpu_xmm5;
- struct xmm_reg fpu_xmm6;
- struct xmm_reg fpu_xmm7;
- struct xmm_reg fpu_xmm8;
- struct xmm_reg fpu_xmm9;
- struct xmm_reg fpu_xmm10;
- struct xmm_reg fpu_xmm11;
- struct xmm_reg fpu_xmm12;
- struct xmm_reg fpu_xmm13;
- struct xmm_reg fpu_xmm14;
- struct xmm_reg fpu_xmm15;
- char fpu_rsrv4[6*16];
- int fpu_reserved1;
+ __uint64_t bvr[16];
+ __uint64_t bcr[16];
+ __uint64_t wvr[16];
+ __uint64_t wcr[16];
+ __uint64_t mdscr_el1;
 };
-struct x86_avx_state64
-{
- int fpu_reserved[2];
- struct fp_control fpu_fcw;
- struct fp_status fpu_fsw;
- __uint8_t fpu_ftw;
- __uint8_t fpu_rsrv1;
- __uint16_t fpu_fop;
- __uint32_t fpu_ip;
- __uint16_t fpu_cs;
- __uint16_t fpu_rsrv2;
- __uint32_t fpu_dp;
- __uint16_t fpu_ds;
- __uint16_t fpu_rsrv3;
- __uint32_t fpu_mxcsr;
- __uint32_t fpu_mxcsrmask;
- struct mmst_reg fpu_stmm0;
- struct mmst_reg fpu_stmm1;
- struct mmst_reg fpu_stmm2;
- struct mmst_reg fpu_stmm3;
- struct mmst_reg fpu_stmm4;
- struct mmst_reg fpu_stmm5;
- struct mmst_reg fpu_stmm6;
- struct mmst_reg fpu_stmm7;
- struct xmm_reg fpu_xmm0;
- struct xmm_reg fpu_xmm1;
- struct xmm_reg fpu_xmm2;
- struct xmm_reg fpu_xmm3;
- struct xmm_reg fpu_xmm4;
- struct xmm_reg fpu_xmm5;
- struct xmm_reg fpu_xmm6;
- struct xmm_reg fpu_xmm7;
- struct xmm_reg fpu_xmm8;
- struct xmm_reg fpu_xmm9;
- struct xmm_reg fpu_xmm10;
- struct xmm_reg fpu_xmm11;
- struct xmm_reg fpu_xmm12;
- struct xmm_reg fpu_xmm13;
- struct xmm_reg fpu_xmm14;
- struct xmm_reg fpu_xmm15;
- char fpu_rsrv4[6*16];
- int fpu_reserved1;
- char avx_reserved1[64];
- struct xmm_reg fpu_ymmh0;
- struct xmm_reg fpu_ymmh1;
- struct xmm_reg fpu_ymmh2;
- struct xmm_reg fpu_ymmh3;
- struct xmm_reg fpu_ymmh4;
- struct xmm_reg fpu_ymmh5;
- struct xmm_reg fpu_ymmh6;
- struct xmm_reg fpu_ymmh7;
- struct xmm_reg fpu_ymmh8;
- struct xmm_reg fpu_ymmh9;
- struct xmm_reg fpu_ymmh10;
- struct xmm_reg fpu_ymmh11;
- struct xmm_reg fpu_ymmh12;
- struct xmm_reg fpu_ymmh13;
- struct xmm_reg fpu_ymmh14;
- struct xmm_reg fpu_ymmh15;
-};
-struct x86_avx512_state64
-{
- int fpu_reserved[2];
- struct fp_control fpu_fcw;
- struct fp_status fpu_fsw;
- __uint8_t fpu_ftw;
- __uint8_t fpu_rsrv1;
- __uint16_t fpu_fop;
- __uint32_t fpu_ip;
- __uint16_t fpu_cs;
- __uint16_t fpu_rsrv2;
- __uint32_t fpu_dp;
- __uint16_t fpu_ds;
- __uint16_t fpu_rsrv3;
- __uint32_t fpu_mxcsr;
- __uint32_t fpu_mxcsrmask;
- struct mmst_reg fpu_stmm0;
- struct mmst_reg fpu_stmm1;
- struct mmst_reg fpu_stmm2;
- struct mmst_reg fpu_stmm3;
- struct mmst_reg fpu_stmm4;
- struct mmst_reg fpu_stmm5;
- struct mmst_reg fpu_stmm6;
- struct mmst_reg fpu_stmm7;
- struct xmm_reg fpu_xmm0;
- struct xmm_reg fpu_xmm1;
- struct xmm_reg fpu_xmm2;
- struct xmm_reg fpu_xmm3;
- struct xmm_reg fpu_xmm4;
- struct xmm_reg fpu_xmm5;
- struct xmm_reg fpu_xmm6;
- struct xmm_reg fpu_xmm7;
- struct xmm_reg fpu_xmm8;
- struct xmm_reg fpu_xmm9;
- struct xmm_reg fpu_xmm10;
- struct xmm_reg fpu_xmm11;
- struct xmm_reg fpu_xmm12;
- struct xmm_reg fpu_xmm13;
- struct xmm_reg fpu_xmm14;
- struct xmm_reg fpu_xmm15;
- char fpu_rsrv4[6*16];
- int fpu_reserved1;
- char avx_reserved1[64];
- struct xmm_reg fpu_ymmh0;
- struct xmm_reg fpu_ymmh1;
- struct xmm_reg fpu_ymmh2;
- struct xmm_reg fpu_ymmh3;
- struct xmm_reg fpu_ymmh4;
- struct xmm_reg fpu_ymmh5;
- struct xmm_reg fpu_ymmh6;
- struct xmm_reg fpu_ymmh7;
- struct xmm_reg fpu_ymmh8;
- struct xmm_reg fpu_ymmh9;
- struct xmm_reg fpu_ymmh10;
- struct xmm_reg fpu_ymmh11;
- struct xmm_reg fpu_ymmh12;
- struct xmm_reg fpu_ymmh13;
- struct xmm_reg fpu_ymmh14;
- struct xmm_reg fpu_ymmh15;
- struct opmask_reg fpu_k0;
- struct opmask_reg fpu_k1;
- struct opmask_reg fpu_k2;
- struct opmask_reg fpu_k3;
- struct opmask_reg fpu_k4;
- struct opmask_reg fpu_k5;
- struct opmask_reg fpu_k6;
- struct opmask_reg fpu_k7;
- struct ymm_reg fpu_zmmh0;
- struct ymm_reg fpu_zmmh1;
- struct ymm_reg fpu_zmmh2;
- struct ymm_reg fpu_zmmh3;
- struct ymm_reg fpu_zmmh4;
- struct ymm_reg fpu_zmmh5;
- struct ymm_reg fpu_zmmh6;
- struct ymm_reg fpu_zmmh7;
- struct ymm_reg fpu_zmmh8;
- struct ymm_reg fpu_zmmh9;
- struct ymm_reg fpu_zmmh10;
- struct ymm_reg fpu_zmmh11;
- struct ymm_reg fpu_zmmh12;
- struct ymm_reg fpu_zmmh13;
- struct ymm_reg fpu_zmmh14;
- struct ymm_reg fpu_zmmh15;
- struct zmm_reg fpu_zmm16;
- struct zmm_reg fpu_zmm17;
- struct zmm_reg fpu_zmm18;
- struct zmm_reg fpu_zmm19;
- struct zmm_reg fpu_zmm20;
- struct zmm_reg fpu_zmm21;
- struct zmm_reg fpu_zmm22;
- struct zmm_reg fpu_zmm23;
- struct zmm_reg fpu_zmm24;
- struct zmm_reg fpu_zmm25;
- struct zmm_reg fpu_zmm26;
- struct zmm_reg fpu_zmm27;
- struct zmm_reg fpu_zmm28;
- struct zmm_reg fpu_zmm29;
- struct zmm_reg fpu_zmm30;
- struct zmm_reg fpu_zmm31;
-};
-struct x86_exception_state64
-{
-    __uint16_t trapno;
-    __uint16_t cpu;
-    __uint32_t err;
-    __uint64_t faultvaddr;
-};
-struct x86_debug_state64
-{
- __uint64_t dr0;
- __uint64_t dr1;
- __uint64_t dr2;
- __uint64_t dr3;
- __uint64_t dr4;
- __uint64_t dr5;
- __uint64_t dr6;
- __uint64_t dr7;
-};
-struct x86_cpmu_state64
+struct arm_cpmu_state64
 {
  __uint64_t ctrs[16];
 };
 struct mcontext32
 {
- struct i386_exception_state es;
- struct i386_thread_state ss;
- struct i386_float_state fs;
-};
-struct mcontext_avx32
-{
- struct i386_exception_state es;
- struct i386_thread_state ss;
- struct i386_avx_state fs;
-};
-struct mcontext_avx512_32
-{
- struct i386_exception_state es;
- struct i386_thread_state ss;
- struct i386_avx512_state fs;
+ struct arm_exception_state es;
+ struct arm_thread_state ss;
+ struct arm_vfp_state fs;
 };
 struct mcontext64
 {
- struct x86_exception_state64 es;
- struct x86_thread_state64 ss;
- struct x86_float_state64 fs;
-};
-struct mcontext64_full
-{
- struct x86_exception_state64 es;
- struct x86_thread_full_state64 ss;
- struct x86_float_state64 fs;
-};
-struct mcontext_avx64
-{
- struct x86_exception_state64 es;
- struct x86_thread_state64 ss;
- struct x86_avx_state64 fs;
-};
-struct mcontext_avx64_full
-{
- struct x86_exception_state64 es;
- struct x86_thread_full_state64 ss;
- struct x86_avx_state64 fs;
-};
-struct mcontext_avx512_64
-{
- struct x86_exception_state64 es;
- struct x86_thread_state64 ss;
- struct x86_avx512_state64 fs;
-};
-struct mcontext_avx512_64_full
-{
- struct x86_exception_state64 es;
- struct x86_thread_full_state64 ss;
- struct x86_avx512_state64 fs;
+ struct arm_exception_state64 es;
+ struct arm_thread_state64 ss;
+ struct arm_neon_state64 ns;
 };
 typedef struct mcontext64 *mcontext_t;
 struct sigaltstack
@@ -1479,7 +974,10 @@ typedef uint64_t mach_vm_size_t;
 typedef uint64_t vm_map_offset_t;
 typedef uint64_t vm_map_address_t;
 typedef uint64_t vm_map_size_t;
-typedef mach_vm_address_t mach_port_context_t;
+typedef uint32_t vm32_offset_t;
+typedef uint32_t vm32_address_t;
+typedef uint32_t vm32_size_t;
+typedef vm_offset_t mach_port_context_t;
 typedef natural_t mach_port_name_t;
 typedef mach_port_name_t *mach_port_name_array_t;
 struct ipc_port;
@@ -1987,80 +1485,35 @@ extern void upl_deallocate(upl_t upl);
 extern void upl_mark_decmp(upl_t upl);
 extern void upl_unmark_decmp(upl_t upl);
 
-struct x86_state_hdr {
+struct arm_state_hdr {
  uint32_t flavor;
  uint32_t count;
 };
-typedef struct x86_state_hdr x86_state_hdr_t;
-typedef struct i386_thread_state i386_thread_state_t;
-typedef struct i386_thread_state x86_thread_state32_t;
-typedef struct i386_float_state i386_float_state_t;
-typedef struct i386_float_state x86_float_state32_t;
-typedef struct i386_avx_state x86_avx_state32_t;
-typedef struct i386_avx512_state x86_avx512_state32_t;
-typedef struct i386_exception_state i386_exception_state_t;
-typedef struct i386_exception_state x86_exception_state32_t;
-typedef struct x86_debug_state32 x86_debug_state32_t;
-typedef struct x86_thread_state64 x86_thread_state64_t;
-typedef struct x86_thread_full_state64 x86_thread_full_state64_t;
-typedef struct x86_float_state64 x86_float_state64_t;
-typedef struct x86_avx_state64 x86_avx_state64_t;
-typedef struct x86_avx512_state64 x86_avx512_state64_t;
-typedef struct x86_exception_state64 x86_exception_state64_t;
-typedef struct x86_debug_state64 x86_debug_state64_t;
-typedef struct __x86_pagein_state x86_pagein_state_t;
-typedef struct __x86_instruction_state x86_instruction_state_t;
-typedef struct __last_branch_state last_branch_state_t;
-struct x86_thread_state {
- x86_state_hdr_t tsh;
+typedef struct arm_state_hdr arm_state_hdr_t;
+typedef struct arm_thread_state arm_thread_state_t;
+typedef struct arm_thread_state arm_thread_state32_t;
+typedef struct arm_thread_state64 arm_thread_state64_t;
+struct arm_unified_thread_state {
+ arm_state_hdr_t ash;
  union {
-  x86_thread_state32_t ts32;
-  x86_thread_state64_t ts64;
+  arm_thread_state32_t ts_32;
+  arm_thread_state64_t ts_64;
  } uts;
 };
-struct x86_float_state {
- x86_state_hdr_t fsh;
- union {
-  x86_float_state32_t fs32;
-  x86_float_state64_t fs64;
- } ufs;
-};
-struct x86_exception_state {
- x86_state_hdr_t esh;
- union {
-  x86_exception_state32_t es32;
-  x86_exception_state64_t es64;
- } ues;
-};
-struct x86_debug_state {
- x86_state_hdr_t dsh;
- union {
-  x86_debug_state32_t ds32;
-  x86_debug_state64_t ds64;
- } uds;
-};
-struct x86_avx_state {
- x86_state_hdr_t ash;
- union {
-  x86_avx_state32_t as32;
-  x86_avx_state64_t as64;
- } ufs;
-};
-struct x86_avx512_state {
- x86_state_hdr_t ash;
- union {
-  x86_avx512_state32_t as32;
-  x86_avx512_state64_t as64;
- } ufs;
-};
-typedef struct x86_thread_state x86_thread_state_t;
-typedef struct x86_float_state x86_float_state_t;
-typedef struct x86_exception_state x86_exception_state_t;
-typedef struct x86_debug_state x86_debug_state_t;
-typedef struct x86_avx_state x86_avx_state_t;
-typedef struct x86_avx512_state x86_avx512_state_t;
+typedef struct arm_unified_thread_state arm_unified_thread_state_t;
+typedef struct arm_vfp_state arm_vfp_state_t;
+typedef struct arm_neon_state arm_neon_state_t;
+typedef struct arm_neon_state arm_neon_state32_t;
+typedef struct arm_neon_state64 arm_neon_state64_t;
+typedef struct arm_exception_state arm_exception_state_t;
+typedef struct arm_exception_state arm_exception_state32_t;
+typedef struct arm_exception_state64 arm_exception_state64_t;
+typedef struct arm_debug_state32 arm_debug_state32_t;
+typedef struct arm_debug_state64 arm_debug_state64_t;
+typedef struct __arm_pagein_state arm_pagein_state_t;
+typedef struct arm_legacy_debug_state arm_debug_state_t;
 typedef natural_t *thread_state_t;
-typedef natural_t thread_state_data_t[(614)];
+typedef natural_t thread_state_data_t[(1296)];
 typedef int thread_state_flavor_t;
 typedef thread_state_flavor_t *thread_state_flavor_array_t;
 
@@ -2157,6 +1610,33 @@ typedef uint32_t mach_voucher_attr_value_reference_t;
 typedef uint32_t mach_voucher_attr_value_flags_t;
 typedef uint32_t mach_voucher_attr_control_flags_t;
 typedef uint32_t mach_voucher_attr_importance_refs;
+struct processor_cpu_stat {
+ uint32_t irq_ex_cnt;
+ uint32_t ipi_cnt;
+ uint32_t timer_cnt;
+ uint32_t undef_ex_cnt;
+ uint32_t unaligned_cnt;
+ uint32_t vfp_cnt;
+ uint32_t vfp_shortv_cnt;
+ uint32_t data_ex_cnt;
+ uint32_t instr_ex_cnt;
+};
+typedef struct processor_cpu_stat processor_cpu_stat_data_t;
+typedef struct processor_cpu_stat *processor_cpu_stat_t;
+struct processor_cpu_stat64 {
+ uint64_t irq_ex_cnt;
+ uint64_t ipi_cnt;
+ uint64_t timer_cnt;
+ uint64_t undef_ex_cnt;
+ uint64_t unaligned_cnt;
+ uint64_t vfp_cnt;
+ uint64_t vfp_shortv_cnt;
+ uint64_t data_ex_cnt;
+ uint64_t instr_ex_cnt;
+ uint64_t pmi_cnt;
+} __attribute__((packed, aligned(4)));
+typedef struct processor_cpu_stat64 processor_cpu_stat64_data_t;
+typedef struct processor_cpu_stat64 *processor_cpu_stat64_t;
 typedef integer_t *processor_info_t;
 typedef integer_t *processor_info_array_t;
 typedef integer_t processor_info_data_t[(1024)];
@@ -2646,6 +2126,7 @@ typedef int vm_machine_attribute_val_t;
 typedef unsigned int vm_inherit_t;
 typedef int vm_purgable_t;
 typedef int vm_behavior_t;
+extern int PAGE_SHIFT_CONST;
 #pragma pack(push, 4)
 typedef uint32_t vm32_object_id_t;
 typedef int *vm_region_info_t;
@@ -2874,7 +2355,7 @@ __os_warn_unused(const _Bool x)
 static inline int __attribute__((__warn_unused_result__))
 mach_vm_round_page_overflow(mach_vm_offset_t in, mach_vm_offset_t *out)
 {
- return __os_warn_unused(({ _Bool __ovr = __os_warn_unused(__builtin_add_overflow((in), ((__typeof__(*out))(4096 - 1)), (out))); *out &= ~((__typeof__(*out))(4096 - 1)); __ovr; }));
+ return __os_warn_unused(({ _Bool __ovr = __os_warn_unused(__builtin_add_overflow((in), ((__typeof__(*out))((1 << PAGE_SHIFT_CONST)-1)), (out))); *out &= ~((__typeof__(*out))((1 << PAGE_SHIFT_CONST)-1)); __ovr; }));
 }
 extern vm_size_t mem_size;
 extern uint64_t max_mem;
@@ -3207,15 +2688,8 @@ extern lck_grp_t *lck_grp_alloc_init(
  lck_grp_attr_t *attr);
 extern void lck_grp_free(
  lck_grp_t *grp);
-__attribute__((__noreturn__)) __attribute__((__cold__)) __attribute__((__not_tail_called__))
-extern void Assert(
- const char *file,
- int line,
- const char *expression) __attribute__((noinline));
-extern int kext_assertions_enable;
 typedef struct __lck_spin_t__ lck_spin_t;
 typedef struct __lck_mtx_t__ lck_mtx_t;
-typedef struct __lck_mtx_ext_t__ lck_mtx_ext_t;
 typedef struct __lck_rw_t__ lck_rw_t;
 typedef unsigned int lck_sleep_action_t;
 typedef unsigned int lck_wake_action_t;
@@ -5899,7 +5373,6 @@ struct proc_ident {
  pid_t p_pid;
  int p_idversion;
 };
-#pragma pack(4)
 struct user32_extern_proc {
  union {
   struct {
@@ -6781,7 +6254,7 @@ void vfs_event_signal(fsid_t *fsid, u_int32_t event, intptr_t data);
 void vfs_event_init(void);
 void vfs_set_root_unmounted_cleanly(void);
 struct label;
-typedef uint64_t pending_io_t;
+typedef uint32_t pending_io_t;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
  struct vnodelst { struct vnode *tqh_first; struct vnode **tqh_last; }
@@ -7751,69 +7224,6 @@ struct user__posix_spawn_args_desc {
  user_size_t subsystem_root_path_size;
  user_addr_t subsystem_root_path;
 };
-static __inline__
-uint16_t
-OSReadSwapInt16(
- const volatile void * base,
- uintptr_t byteOffset
- )
-{
- uint16_t result;
- result = *(volatile uint16_t *)((uintptr_t)base + byteOffset);
- return _OSSwapInt16(result);
-}
-static __inline__
-uint32_t
-OSReadSwapInt32(
- const volatile void * base,
- uintptr_t byteOffset
- )
-{
- uint32_t result;
- result = *(volatile uint32_t *)((uintptr_t)base + byteOffset);
- return _OSSwapInt32(result);
-}
-static __inline__
-uint64_t
-OSReadSwapInt64(
- const volatile void * base,
- uintptr_t byteOffset
- )
-{
- uint64_t result;
- result = *(volatile uint64_t *)((uintptr_t)base + byteOffset);
- return _OSSwapInt64(result);
-}
-static __inline__
-void
-OSWriteSwapInt16(
- volatile void * base,
- uintptr_t byteOffset,
- uint16_t data
- )
-{
- *(volatile uint16_t *)((uintptr_t)base + byteOffset) = _OSSwapInt16(data);
-}
-static __inline__
-void
-OSWriteSwapInt32(
- volatile void * base,
- uintptr_t byteOffset,
- uint32_t data
- )
-{
- *(volatile uint32_t *)((uintptr_t)base + byteOffset) = _OSSwapInt32(data);
-}
-static __inline__
-void
-OSWriteSwapInt64(
- volatile void * base,
- uintptr_t byteOffset,
- uint64_t data
- )
-{
- *(volatile uint64_t *)((uintptr_t)base + byteOffset) = _OSSwapInt64(data);
-}
 enum {
  OSUnknownByteOrder,
  OSLittleEndian,
@@ -12129,30 +11539,13 @@ int grade_binary(cpu_type_t, cpu_subtype_t, cpu_subtype_t, _Bool allow_simulator
 boolean_t binary_match(cpu_type_t mask_bits, cpu_type_t req_cpu,
     cpu_subtype_t req_subcpu, cpu_type_t test_cpu,
     cpu_subtype_t test_subcpu);
-struct pal_efi_registers {
- uint64_t rcx;
- uint64_t rdx;
- uint64_t r8;
- uint64_t r9;
- uint64_t rax;
-};
-kern_return_t
-pal_efi_call_in_64bit_mode(uint64_t func,
-    struct pal_efi_registers *efi_reg,
-    void *stack_contents,
-    size_t stack_contents_size,
-    uint64_t *efi_status);
-kern_return_t
-pal_efi_call_in_32bit_mode(uint32_t func,
-    struct pal_efi_registers *efi_reg,
-    void *stack_contents,
-    size_t stack_contents_size,
-    uint32_t *efi_status);
-boolean_t pal_machine_sleep(uint8_t type_a,
-    uint8_t type_b,
-    uint32_t bit_position,
-    uint32_t disable_mask,
-    uint32_t enable_mask);
+static inline void
+pal_get_resource_property(const char **property_name,
+    int *property_value)
+{
+ *property_name = ((void *)0);
+ (void) property_value;
+}
 
 extern void act_set_astbsd(thread_t);
 extern void bsd_ast(thread_t);
@@ -12999,13 +12392,13 @@ extern int get_map_nentries(vm_map_t);
 extern kern_return_t memory_object_signed(memory_object_control_t control,
     boolean_t is_signed);
 static const load_result_t load_result_null = {
- .mach_header = ((mach_vm_offset_t) 0),
- .entry_point = ((mach_vm_offset_t) 0),
- .user_stack = ((mach_vm_offset_t) 0),
+ .mach_header = ((mach_vm_offset_t) 0x0ULL),
+ .entry_point = ((mach_vm_offset_t) 0x0ULL),
+ .user_stack = ((mach_vm_offset_t) 0x0ULL),
  .user_stack_size = 0,
- .user_stack_alloc = ((mach_vm_offset_t) 0),
+ .user_stack_alloc = ((mach_vm_offset_t) 0x0ULL),
  .user_stack_alloc_size = 0,
- .all_image_info_addr = ((mach_vm_offset_t) 0),
+ .all_image_info_addr = ((mach_vm_offset_t) 0x0ULL),
  .all_image_info_size = 0,
  .thread_count = 0,
  .unixproc = 0,
@@ -13019,13 +12412,13 @@ static const load_result_t load_result_null = {
  .csflags = 0,
  .has_pagezero = 0,
  .uuid = { 0 },
- .min_vm_addr = ((mach_vm_offset_t) ((user_addr_t) 0x00007FFFFFE00000ULL)),
- .max_vm_addr = ((mach_vm_offset_t) 0),
+ .min_vm_addr = ((mach_vm_offset_t) 0x0000000FC0000000ULL),
+ .max_vm_addr = ((mach_vm_offset_t) 0x0ULL),
  .cs_end_offset = 0,
  .threadstate = ((void *)0),
  .threadstate_sz = 0,
  .is_cambria = 0,
- .dynlinker_mach_header = ((mach_vm_offset_t) 0),
+ .dynlinker_mach_header = ((mach_vm_offset_t) 0x0ULL),
  .dynlinker_fd = -1,
 };
 static load_return_t
@@ -13137,12 +12530,6 @@ load_dylinker(
  load_result_t *result,
  struct image_params *imgp
  );
-extern int bootarg_no32exec;
-static boolean_t
-check_if_simulator_binary(
- struct image_params *imgp,
- off_t file_offset,
- off_t macho_size);
 struct macho_data;
 static load_return_t
 get_macho_vnode(
@@ -13273,7 +12660,7 @@ load_machfile(
   dyld_aslr_page_offset <<= vm_map_page_shift(map);
   aslr_page_offset += aslr_section_offset;
  }
- if (vm_map_page_shift(map) < (int)12) {
+ if (vm_map_page_shift(map) < (int)PAGE_SHIFT_CONST) {
   DEBUG4K_LOAD("slide=0x%llx dyld_slide=0x%llx\n", aslr_page_offset, dyld_aslr_page_offset);
  }
  if (!result) {
@@ -13289,26 +12676,13 @@ load_machfile(
   vm_map_deallocate(map);
   return lret;
  }
- if (!result->is_64bit_addr) {
-  enforce_hard_pagezero = 0;
- }
- if (result->is_64bit_addr &&
-     (imgp->ip_flags & 0x00000200)) {
-  int random_bits;
-  vm_map_offset_t high_start;
-  random_bits = random();
-  random_bits &= (1 << 8) - 1;
-  high_start = (((vm_map_offset_t)random_bits)
-          << 27);
-  vm_map_set_high_start(map, high_start);
- }
  if (enforce_hard_pagezero &&
      (vm_map_has_hard_pagezero(map, 0x1000) == 0)) {
   if (
    !result->is_64bit_addr &&
    !(header->flags & 0x200000) &&
    (vm_map_page_shift(map) != FOURK_PAGE_SHIFT ||
-   12 != FOURK_PAGE_SHIFT) &&
+   PAGE_SHIFT_CONST != FOURK_PAGE_SHIFT) &&
    result->has_pagezero &&
    fourk_binary_compatibility_unsafe) {
   } else
@@ -13401,7 +12775,7 @@ parse_machfile(
  int64_t slide = 0;
  boolean_t dyld_no_load_addr = 0;
  boolean_t is_dyld = 0;
- vm_map_offset_t effective_page_mask = (4096 - 1);
+ vm_map_offset_t effective_page_mask = ((1 << PAGE_SHIFT_CONST)-1);
  uint64_t pagezero_end = 0;
  uint64_t executable_end = 0;
  uint64_t writable_start = 0;
@@ -13456,7 +12830,7 @@ parse_machfile(
  control = ubc_getobject(vp, 0x0000);
  if (__os_warn_unused(__builtin_add_overflow((mach_header_sz), (header->sizeofcmds), (&cmds_size))) ||
      (off_t)cmds_size > macho_size ||
-     __os_warn_unused(({ _Bool __ovr = __os_warn_unused(__builtin_add_overflow((cmds_size), ((__typeof__(*&alloc_size))(4096 - 1)), (&alloc_size))); *&alloc_size &= ~((__typeof__(*&alloc_size))(4096 - 1)); __ovr; })) ||
+     __os_warn_unused(({ _Bool __ovr = __os_warn_unused(__builtin_add_overflow((cmds_size), ((__typeof__(*&alloc_size))((1 << PAGE_SHIFT_CONST)-1)), (&alloc_size))); *&alloc_size &= ~((__typeof__(*&alloc_size))((1 << PAGE_SHIFT_CONST)-1)); __ovr; })) ||
      alloc_size > 2147483647) {
   return 2;
  }
@@ -13563,7 +12937,7 @@ parse_machfile(
        continue;
       }
      }
-     ((void)0);
+     assert(!abi64);
      if (scp->initprot == 0 && scp->maxprot == 0 && scp->vmaddr == 0) {
       if (__os_warn_unused(__extension__({ __typeof(*(&pagezero_end)) _tmp; _Bool _s, _t; _s = __os_warn_unused(__builtin_add_overflow(((scp->vmaddr)), ((scp->vmsize)), (&_tmp))); _t = __os_warn_unused(__builtin_add_overflow(((slide)), (_tmp), ((&pagezero_end)))); _s | _t; })) || pagezero_end > 4294967295U) {
        ret = 2;
@@ -13735,7 +13109,7 @@ parse_machfile(
           ((void *)0),
           file_offset + off,
           addr + off,
-          (((4096)<(cmds_size))?(4096):(cmds_size)),
+          ((((1 << PAGE_SHIFT_CONST))<(cmds_size))?((1 << PAGE_SHIFT_CONST)):(cmds_size)),
           &tainted);
       if (!valid || (tainted & CS_VALIDATE_TAINTED)) {
        if (cs_debug) {
@@ -13748,7 +13122,7 @@ parse_machfile(
        }
        result->csflags &= ~0x00000001;
       }
-      off += 4096;
+      off += (1 << PAGE_SHIFT_CONST);
      }
     }
     break;
@@ -13825,122 +13199,7 @@ validate_potential_simulator_binary(
  off_t file_offset __attribute__((__unused__)),
  off_t macho_size __attribute__((__unused__)))
 {
- if (bootarg_no32exec && imgp != ((void *)0) && exectype == ((cpu_type_t) 7)) {
-  if (imgp->ip_simulator_binary == 0) {
-   boolean_t simulator_binary = check_if_simulator_binary(imgp, file_offset, macho_size);
-   imgp->ip_simulator_binary = simulator_binary ? 1 : 2;
-  }
-  if (imgp->ip_simulator_binary != 1) {
-   return 1;
-  }
- }
  return 0;
-}
-static boolean_t
-check_if_simulator_binary(
- struct image_params *imgp,
- off_t file_offset,
- off_t macho_size)
-{
- struct mach_header *header;
- char *ip_vdata = ((void *)0);
- kauth_cred_t cred = ((void *)0);
- uint32_t ncmds;
- struct load_command *lcp;
- boolean_t simulator_binary = 0;
- void * addr = ((void *)0);
- vm_size_t alloc_size, cmds_size;
- size_t offset;
- proc_t p = current_proc();
- int error;
- int resid = 0;
- size_t mach_header_sz = sizeof(struct mach_header);
- cred = kauth_cred_proc_ref(p);
- ip_vdata = kalloc(4096);
- __builtin___memset_chk (ip_vdata, 0, 4096, __builtin_object_size (ip_vdata, 0));
- if (ip_vdata == ((void *)0)) {
-  goto bad;
- }
- error = vn_rdwr(UIO_READ, imgp->ip_vp, ip_vdata,
-     4096, file_offset,
-     UIO_SYSSPACE, (0x0001 | 0x0008),
-     cred, &resid, p);
- if (error) {
-  goto bad;
- }
- header = (struct mach_header *)ip_vdata;
- if (header->magic == 0xfeedfacf ||
-     header->magic == 0xcffaedfe) {
-  mach_header_sz = sizeof(struct mach_header_64);
- }
- if (__os_warn_unused(__builtin_add_overflow((mach_header_sz), (header->sizeofcmds), (&cmds_size))) ||
-     (off_t)cmds_size > macho_size ||
-     __os_warn_unused(({ _Bool __ovr = __os_warn_unused(__builtin_add_overflow((cmds_size), ((__typeof__(*&alloc_size))(4096 - 1)), (&alloc_size))); *&alloc_size &= ~((__typeof__(*&alloc_size))(4096 - 1)); __ovr; })) ||
-     alloc_size > 2147483647) {
-  goto bad;
- }
- addr = kalloc(alloc_size);
- if (addr == ((void *)0)) {
-  goto bad;
- }
- error = vn_rdwr(UIO_READ, imgp->ip_vp, addr, (int)alloc_size, file_offset,
-     UIO_SYSSPACE, 0x0008, cred, &resid, p);
- if (error) {
-  goto bad;
- }
- if (resid) {
-  goto bad;
- }
- offset = mach_header_sz;
- ncmds = header->ncmds;
- while (ncmds--) {
-  if (offset + sizeof(struct load_command) > cmds_size) {
-   break;
-  }
-  lcp = (struct load_command *)(addr + offset);
-  if (__os_warn_unused(__builtin_add_overflow((offset), (lcp->cmdsize), (&offset))) ||
-      lcp->cmdsize < sizeof(struct load_command) ||
-      offset > cmds_size) {
-   break;
-  }
-  switch (lcp->cmd) {
-  case 0x30:
-   simulator_binary = 1;
-   break;
-  case 0x32: {
-   struct build_version_command *bvc;
-   bvc = (struct build_version_command *) lcp;
-   if (bvc->cmdsize < sizeof(*bvc)) {
-    break;
-   }
-   if (bvc->platform == 7 ||
-       bvc->platform == 9) {
-    simulator_binary = 1;
-   }
-   break;
-  }
-  case 0x25: {
-   simulator_binary = 1;
-   break;
-  }
-  default:
-   break;
-  }
-  if (simulator_binary == 1) {
-   break;
-  }
- }
-bad:
- if (ip_vdata) {
-  kfree(ip_vdata, 4096);
- }
- if (cred) {
-  kauth_cred_unref(&cred);
- }
- if (addr) {
-  kfree(addr, alloc_size);
- }
- return simulator_binary;
 }
 static load_return_t
 unprotect_dsmos_segment(
@@ -14129,7 +13388,7 @@ map_segment(
   cur_offset += cur_end - cur_start;
  }
 done:
- ((void)0);
+ assert(cur_end >= vm_start + (file_end - file_start));
  return 0;
 }
 static
@@ -14173,7 +13432,7 @@ load_segment(
   single_section_size = sizeof(struct section_64);
   fourk_align = 0;
   if (vm_map_page_shift(map) == FOURK_PAGE_SHIFT &&
-      12 != FOURK_PAGE_SHIFT) {
+      PAGE_SHIFT_CONST != FOURK_PAGE_SHIFT) {
    fourk_align = 1;
    verbose = 1;
   }
@@ -14221,7 +13480,7 @@ load_segment(
    return 2;
   }
  } else
- if ((file_offset & (unsigned long long)(4096 - 1)) != 0 ||
+ if ((file_offset & (unsigned long long)((1 << PAGE_SHIFT_CONST)-1)) != 0 ||
      (file_offset & vm_map_page_mask(map)) != 0) {
   DEBUG4K_ERROR("LOAD_BADMACHO file_offset 0x%llx\n", file_offset);
   return 2;
@@ -14272,14 +13531,14 @@ load_segment(
   } else
   {
    vm_end = vm_map_round_page(vm_end,
-       (unsigned long long)(4096 - 1));
+       (unsigned long long)((1 << PAGE_SHIFT_CONST)-1));
    vm_end_aligned = vm_end;
   }
   ret = vm_map_raise_min_offset(map,
       vm_end_aligned);
   if (ret == 0 &&
       vm_end > vm_end_aligned) {
-   ((void)0);
+   assert(fourk_align);
    vmk_flags = VM_MAP_KERNEL_FLAGS_NONE;
    vmk_flags.vmkf_fourk = 1;
    ret = vm_map_enter_mem_object(
@@ -14328,9 +13587,9 @@ load_segment(
    return 2;
   }
   if (!strncmp(scp->segname, "__LINKEDIT", 11) &&
-      (((file_start) & (4096 - 1)) == 0) &&
+      (((file_start) & ((1 << PAGE_SHIFT_CONST)-1)) == 0) &&
       vm_map_page_aligned(file_start, vm_map_page_mask(map)) &&
-      (((vm_start) & (4096 - 1)) == 0) &&
+      (((vm_start) & ((1 << PAGE_SHIFT_CONST)-1)) == 0) &&
       vm_map_page_aligned(vm_start, vm_map_page_mask(map))) {
    file_end = vm_map_round_page(file_end,
        effective_page_mask);
@@ -14440,7 +13699,7 @@ load_segment(
  }
  if (0 == ret &&
      filetype == 0x7 &&
-     result->all_image_info_addr == ((mach_vm_offset_t) 0)) {
+     result->all_image_info_addr == ((mach_vm_offset_t) 0x0ULL)) {
   note_all_image_info_section(scp,
       0x19 == lcp->cmd,
       single_section_size,
@@ -14449,7 +13708,7 @@ load_segment(
       slide,
       result);
  }
- if (result->entry_point != ((mach_vm_offset_t) 0)) {
+ if (result->entry_point != ((mach_vm_offset_t) 0x0ULL)) {
   if ((result->entry_point >= vm_offset) && (result->entry_point < (vm_offset + vm_size))) {
    if ((scp->initprot & (((vm_prot_t) 0x01) | ((vm_prot_t) 0x04))) == (((vm_prot_t) 0x01) | ((vm_prot_t) 0x04))) {
     result->validentry = 1;
@@ -14503,14 +13762,19 @@ load_version(
  case 0x24:
   platform = 1;
   break;
- case 0x25:
-  platform = 7;
+ case 0x25: {
+  extern int legacy_footprint_entitlement_mode;
+  if (vmc->sdk < (12 << 16)) {
+   result->legacy_footprint = 1;
+  }
+  platform = 2;
   break;
+ }
  case 0x30:
-  platform = 9;
+  platform = 4;
   break;
  case 0x2F:
-  platform = 8;
+  platform = 3;
   break;
  default:
   sdk = (uint32_t)-1;
@@ -14543,11 +13807,11 @@ load_main(
   return 0;
  }
  if (epc->stacksize) {
-  if (__os_warn_unused(__builtin_add_overflow((epc->stacksize), (4 * 4096), (&result->user_stack_size)))) {
+  if (__os_warn_unused(__builtin_add_overflow((epc->stacksize), (4 * (1 << PAGE_SHIFT_CONST)), (&result->user_stack_size)))) {
    return 2;
   }
   result->user_stack_size = epc->stacksize;
-  if (__os_warn_unused(__builtin_add_overflow((epc->stacksize), (4096), (&result->user_stack_alloc_size)))) {
+  if (__os_warn_unused(__builtin_add_overflow((epc->stacksize), ((1 << PAGE_SHIFT_CONST)), (&result->user_stack_alloc_size)))) {
    return 2;
   }
   result->custom_stack = 1;
@@ -14558,8 +13822,8 @@ load_main(
  if (ret != 0) {
   return 4;
  }
- result->user_stack = (user_addr_t)((mach_vm_offset_t)((user_addr_t)addr - slide) & ~((signed)(4096 - 1)));
- if (result->using_lcmain || result->entry_point != ((mach_vm_offset_t) 0)) {
+ result->user_stack = (user_addr_t)((mach_vm_offset_t)((user_addr_t)addr - slide) & ~((signed)((1 << PAGE_SHIFT_CONST)-1)));
+ if (result->using_lcmain || result->entry_point != ((mach_vm_offset_t) 0x0ULL)) {
   return 4;
  }
  result->needs_dynlinker = 1;
@@ -14592,7 +13856,7 @@ setup_driver_main(
  }
  result->user_stack = (user_addr_t)addr;
  result->user_stack -= slide;
- if (result->using_lcmain || result->entry_point != ((mach_vm_offset_t) 0)) {
+ if (result->using_lcmain || result->entry_point != ((mach_vm_offset_t) 0x0ULL)) {
   return 4;
  }
  result->needs_dynlinker = 1;
@@ -14639,7 +13903,7 @@ load_unixthread(
  } else {
   result->user_stack_alloc_size = (64*1024*1024);
  }
- result->user_stack = (user_addr_t)((mach_vm_offset_t)((user_addr_t)addr - slide) & ~((signed)(4096 - 1)));
+ result->user_stack = (user_addr_t)((mach_vm_offset_t)((user_addr_t)addr - slide) & ~((signed)((1 << PAGE_SHIFT_CONST)-1)));
  {
   ret = load_threadentry(thread,
       (uint32_t *)(((vm_offset_t)tcp) +
@@ -14649,7 +13913,7 @@ load_unixthread(
   if (ret != 0) {
    return ret;
   }
-  if (result->using_lcmain || result->entry_point != ((mach_vm_offset_t) 0)) {
+  if (result->using_lcmain || result->entry_point != ((mach_vm_offset_t) 0x0ULL)) {
    return 4;
   }
   result->entry_point = (user_addr_t)addr;
@@ -14770,7 +14034,7 @@ load_threadentry(
  uint32_t size;
  int flavor;
  uint32_t entry_size;
- *entry_point = ((mach_vm_offset_t) 0);
+ *entry_point = ((mach_vm_offset_t) 0x0ULL);
  while (total_size > 0) {
   if (total_size < 2 * sizeof(uint32_t)) {
    return 2;
@@ -14949,7 +14213,7 @@ load_code_signature(
    ret = 4;
    goto out;
   }
-  ((void)0);
+  assert(error == 35);
   blob = ((void *)0);
  }
  blob_size = lcp->datasize;
