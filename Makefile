@@ -9,3 +9,6 @@ source:
 # Extract preprocessed macros
 macros:
 	clang $(SHARED_FLAGS) $(DEPS) -dM $(XNU_ROOT)/bsd/kern/mach_loader.c -o mach_loader.macros.c 
+
+clean:
+	rm mach_loader*
